@@ -1,39 +1,68 @@
 """
 セイバーメトリクス計算モジュール
 OPS+, FIP, FIP-, K-BB%, wSB 等を算出する。
+欠損値（ハイフン等）や古い時代の特殊表記にも堅牢に対応。
 """
 
 from typing import Dict, List, Any
 from scraper import parse_ip
 
+def safe_float(val: Any, default: float = 0.0) -> float:
+    if val is None:
+        return default
+    s = str(val).strip()
+    if s in ("", "-", "--", "---", "*"):
+        return default
+    try:
+        return float(s)
+    except (ValueError, TypeError):
+        return default
+
+def safe_int(val: Any, default: int = 0) -> int:
+    if val is None:
+        return default
+    s = str(val).strip()
+    if s in ("", "-", "--", "---", "*"):
+        return default
+    try:
+        return int(float(s))
+    except (ValueError, TypeError):
+        return default
+
+def get_cell(row_list: List[str], idx: int, default: str = "") -> str:
+    if 0 <= idx < len(row_list):
+        return row_list[idx]
+    return default
+
 def calc_league_aggregates(team_bat_rows: List[Dict[str, Any]], team_pitch_rows: List[Dict[str, Any]]) -> Dict[str, float]:
     """各リーグのチーム合計からリーグ環境（平均値）を算出"""
     # 打撃集計 (Row 0 is header)
-    total_ab = sum(float(r["text"][3]) for r in team_bat_rows[1:])
-    total_h = sum(float(r["text"][5]) for r in team_bat_rows[1:])
-    total_2b = sum(float(r["text"][6]) for r in team_bat_rows[1:])
-    total_3b = sum(float(r["text"][7]) for r in team_bat_rows[1:])
-    total_hr = sum(float(r["text"][8]) for r in team_bat_rows[1:])
-    total_tb = sum(float(r["text"][9]) for r in team_bat_rows[1:])
-    total_sf = sum(float(r["text"][14]) for r in team_bat_rows[1:])
-    total_bb = sum(float(r["text"][15]) for r in team_bat_rows[1:])
-    total_hbp = sum(float(r["text"][17]) for r in team_bat_rows[1:])
-    total_so = sum(float(r["text"][18]) for r in team_bat_rows[1:])
+    total_ab = sum(safe_float(get_cell(r["text"], 3)) for r in team_bat_rows[1:])
+    total_h = sum(safe_float(get_cell(r["text"], 5)) for r in team_bat_rows[1:])
+    total_2b = sum(safe_float(get_cell(r["text"], 6)) for r in team_bat_rows[1:])
+    total_3b = sum(safe_float(get_cell(r["text"], 7)) for r in team_bat_rows[1:])
+    total_hr = sum(safe_float(get_cell(r["text"], 8)) for r in team_bat_rows[1:])
+    total_tb = sum(safe_float(get_cell(r["text"], 9)) for r in team_bat_rows[1:])
+    total_sf = sum(safe_float(get_cell(r["text"], 14)) for r in team_bat_rows[1:])
+    total_bb = sum(safe_float(get_cell(r["text"], 15)) for r in team_bat_rows[1:])
+    total_hbp = sum(safe_float(get_cell(r["text"], 17)) for r in team_bat_rows[1:])
+    total_so = sum(safe_float(get_cell(r["text"], 18)) for r in team_bat_rows[1:])
 
     lg_avg = total_h / max(total_ab, 1.0)
-    lg_obp = (total_h + total_bb + total_hbp) / max(total_ab + total_bb + total_hbp + total_sf, 1.0)
+    denom_obp = total_ab + total_bb + total_hbp + total_sf
+    lg_obp = (total_h + total_bb + total_hbp) / max(denom_obp, 1.0)
     lg_slg = total_tb / max(total_ab, 1.0)
     lg_ops = lg_obp + lg_slg
     lg_isop = lg_slg - lg_avg
 
     # 投手集計
-    total_ip = sum(parse_ip(r["text"][9]) for r in team_pitch_rows[1:])
-    total_tbf = sum(float(r["text"][10]) for r in team_pitch_rows[1:])
-    total_p_hr = sum(float(r["text"][13]) for r in team_pitch_rows[1:])
-    total_p_bb = sum(float(r["text"][14]) for r in team_pitch_rows[1:])
-    total_p_hbp = sum(float(r["text"][15]) for r in team_pitch_rows[1:])
-    total_p_so = sum(float(r["text"][16]) for r in team_pitch_rows[1:])
-    total_er = sum(float(r["text"][20]) for r in team_pitch_rows[1:])
+    total_ip = sum(parse_ip(get_cell(r["text"], 9)) for r in team_pitch_rows[1:])
+    total_tbf = sum(safe_float(get_cell(r["text"], 10)) for r in team_pitch_rows[1:])
+    total_p_hr = sum(safe_float(get_cell(r["text"], 13)) for r in team_pitch_rows[1:])
+    total_p_bb = sum(safe_float(get_cell(r["text"], 14)) for r in team_pitch_rows[1:])
+    total_p_hbp = sum(safe_float(get_cell(r["text"], 15)) for r in team_pitch_rows[1:])
+    total_p_so = sum(safe_float(get_cell(r["text"], 16)) for r in team_pitch_rows[1:])
+    total_er = sum(safe_float(get_cell(r["text"], 20)) for r in team_pitch_rows[1:])
 
     lg_era = (total_er * 9.0) / max(total_ip, 1.0)
     # FIP 定数 C (リーグ全体のFIP期待値とERAが一致するように調整)
@@ -52,30 +81,38 @@ def calc_league_aggregates(team_bat_rows: List[Dict[str, Any]], team_pitch_rows:
 
 def calc_batter_metrics(cells: List[str], lg: Dict[str, float]) -> Dict[str, Any]:
     """打者のセイバー指標を算出"""
-    g = int(cells[3])
-    pa = int(cells[4])
-    ab = int(cells[5])
-    r = int(cells[6])
-    h = int(cells[7])
-    b2 = int(cells[8])
-    b3 = int(cells[9])
-    hr = int(cells[10])
-    tb = int(cells[11])
-    rbi = int(cells[12])
-    sb = int(cells[13])
-    cs = int(cells[14])
-    sh = int(cells[15])
-    sf = int(cells[16])
-    bb = int(cells[17])
-    hbp = int(cells[19])
-    so = int(cells[20])
-    gdp = int(cells[21])
-    e = int(cells[22])
-    avg = float(cells[23])
-    obp = float(cells[24])
-    slg = float(cells[25])
-    ops = float(cells[26])
-    age = int(cells[27])
+    g = safe_int(get_cell(cells, 3))
+    pa = safe_int(get_cell(cells, 4))
+    ab = safe_int(get_cell(cells, 5))
+    r = safe_int(get_cell(cells, 6))
+    h = safe_int(get_cell(cells, 7))
+    b2 = safe_int(get_cell(cells, 8))
+    b3 = safe_int(get_cell(cells, 9))
+    hr = safe_int(get_cell(cells, 10))
+    tb = safe_int(get_cell(cells, 11))
+    rbi = safe_int(get_cell(cells, 12))
+    sb = safe_int(get_cell(cells, 13))
+    cs = safe_int(get_cell(cells, 14))
+    sh = safe_int(get_cell(cells, 15))
+    sf = safe_int(get_cell(cells, 16))
+    bb = safe_int(get_cell(cells, 17))
+    hbp = safe_int(get_cell(cells, 19))
+    so = safe_int(get_cell(cells, 20))
+    gdp = safe_int(get_cell(cells, 21))
+    e = safe_int(get_cell(cells, 22))
+    avg = safe_float(get_cell(cells, 23))
+    obp = safe_float(get_cell(cells, 24))
+    slg = safe_float(get_cell(cells, 25))
+    ops = safe_float(get_cell(cells, 26))
+    age = safe_int(get_cell(cells, 27))
+
+    # 出塁率・長打率が空の場合の再計算補正（1950年代初期等）
+    if obp == 0.0 and (ab + bb + hbp + sf) > 0:
+        obp = (h + bb + hbp) / max(ab + bb + hbp + sf, 1)
+    if slg == 0.0 and ab > 0 and tb > 0:
+        slg = tb / ab
+    if ops == 0.0:
+        ops = obp + slg
 
     # OPS+ (Baseball-Reference方式: 100が平均)
     ops_plus = 100.0 * ((obp / max(lg["lg_obp"], 0.001)) + (slg / max(lg["lg_slg"], 0.001)) - 1.0)
@@ -104,24 +141,24 @@ def calc_batter_metrics(cells: List[str], lg: Dict[str, float]) -> Dict[str, Any
 
 def calc_pitcher_metrics(cells: List[str], lg: Dict[str, float]) -> Dict[str, Any]:
     """投手のセイバー指標を算出"""
-    g = int(cells[3])
-    gs = int(cells[4])
-    cg = int(cells[6])
-    sho = int(cells[7])
-    w = int(cells[9])
-    l = int(cells[10])
-    sv = int(cells[11])
-    hld = int(cells[12])
-    ip = parse_ip(cells[13])
-    tbf = int(cells[14])
-    h = int(cells[16])
-    hr = int(cells[17])
-    bb = int(cells[18])
-    hbp = int(cells[19])
-    so = int(cells[20])
-    er = int(cells[24])
-    era = float(cells[25])
-    age = int(cells[27])
+    g = safe_int(get_cell(cells, 3))
+    gs = safe_int(get_cell(cells, 4))
+    cg = safe_int(get_cell(cells, 6))
+    sho = safe_int(get_cell(cells, 7))
+    w = safe_int(get_cell(cells, 9))
+    l = safe_int(get_cell(cells, 10))
+    sv = safe_int(get_cell(cells, 11))
+    hld = safe_int(get_cell(cells, 12))
+    ip = parse_ip(get_cell(cells, 13))
+    tbf = safe_int(get_cell(cells, 14))
+    h = safe_int(get_cell(cells, 16))
+    hr = safe_int(get_cell(cells, 17))
+    bb = safe_int(get_cell(cells, 18))
+    hbp = safe_int(get_cell(cells, 19))
+    so = safe_int(get_cell(cells, 20))
+    er = safe_int(get_cell(cells, 24))
+    era = safe_float(get_cell(cells, 25))
+    age = safe_int(get_cell(cells, 27))
 
     # FIP
     fip = ((13.0 * hr + 3.0 * (bb + hbp) - 2.0 * so) / max(ip, 1.0)) + lg["fip_c"]

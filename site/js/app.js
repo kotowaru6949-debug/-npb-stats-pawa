@@ -31,12 +31,30 @@ async function loadData() {
     allBatters = await bRes.json();
     allPitchers = await pRes.json();
 
+    populateYearFilter();
     populateTeamFilter();
     populateCompareSelects();
     renderCurrentTab();
   } catch (err) {
     console.error("データの読み込みに失敗しました:", err);
   }
+}
+
+// 年度フィルターの選択肢を動的生成
+function populateYearFilter() {
+  const years = new Set();
+  allBatters.forEach(b => years.add(b.year));
+  allPitchers.forEach(p => years.add(p.year));
+
+  const select = document.getElementById("yearFilter");
+  select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>';
+
+  Array.from(years).sort((a, b) => b - a).forEach(y => {
+    const opt = document.createElement("option");
+    opt.value = y.toString();
+    opt.textContent = `${y}年`;
+    select.appendChild(opt);
+  });
 }
 
 // タブ切り替え
