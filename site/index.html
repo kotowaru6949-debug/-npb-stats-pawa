@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NPB セイバーメトリクス & パワプロ査定アーカイブ</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚾</span>
+        <div>
+          <h1>NPB セイバーメトリクス & パワプロ風査定</h1>
+          <p class="subtitle">時代補正指標 (OPS+, FIP-, K-BB%) × パワプロ能力値 (1〜100 / G〜S) で楽しむ歴代選手比較</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="downloadCsvBtn" class="btn btn-outline">📥 CSVダウンロード</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="battersTab">🏏 野手一覧・査定</button>
+      <button class="tab-btn" data-tab="pitchersTab">🎯 投手一覧・査定</button>
+      <button class="tab-btn" data-tab="scatterTab">📊 世代比較・散布図</button>
+      <button class="tab-btn" data-tab="compareTab">⚖️ 選手直接比較</button>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <!-- Filter Bar -->
+    <section class="filter-panel">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="yearFilter">年度</label>
+          <select id="yearFilter">
+            <option value="all">全年度</option>
+            <option value="2024">2024年</option>
+            <option value="2023">2023年</option>
+            <option value="2022">2022年</option>
+            <option value="2021">2021年</option>
+            <option value="2020">2020年</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="leagueFilter">リーグ</label>
+          <select id="leagueFilter">
+            <option value="all">両リーグ</option>
+            <option value="セ">セ・リーグ</option>
+            <option value="パ">パ・リーグ</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="teamFilter">球団</label>
+          <select id="teamFilter">
+            <option value="all">全球団</option>
+          </select>
+        </div>
+
+        <div class="filter-group" id="posFilterGroup">
+          <label for="posFilter">守備位置</label>
+          <select id="posFilter">
+            <option value="all">全ポジション</option>
+            <option value="捕">捕手 (C)</option>
+            <option value="一">一塁手 (1B)</option>
+            <option value="二">二塁手 (2B)</option>
+            <option value="三">三塁手 (3B)</option>
+            <option value="遊">遊撃手 (SS)</option>
+            <option value="外">外野手 (OF)</option>
+            <option value="指">指名打者 (DH)</option>
+          </select>
+        </div>
+
+        <div class="filter-group search-group">
+          <label for="searchQuery">選手名検索</label>
+          <input type="text" id="searchQuery" placeholder="例: 坂本、村上、菅野...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 1: Batters -->
+    <section id="battersTab" class="tab-pane active">
+      <div class="table-meta">
+        <span id="battersCount" class="count-badge">表示: 0名</span>
+        <div class="legend">
+          <span class="legend-item"><span class="badge badge-s">S</span> 90-100</span>
+          <span class="legend-item"><span class="badge badge-a">A</span> 80-89</span>
+          <span class="legend-item"><span class="badge badge-b">B</span> 70-79</span>
+          <span class="legend-item"><span class="badge badge-c">C</span> 60-69</span>
+          <span class="legend-item"><span class="badge badge-d">D</span> 50-59</span>
+          <span class="legend-item"><span class="badge badge-e">E</span> 40-49</span>
+          <span class="legend-item"><span class="badge badge-f">F</span> 20-39</span>
+          <span class="legend-item"><span class="badge badge-g">G</span> 1-19</span>
+        </div>
+      </div>
+      <div class="table-container">
+        <table id="battersTable">
+          <thead>
+            <tr>
+              <th data-sort="year">年度 ⬍</th>
+              <th data-sort="team">球団 ⬍</th>
+              <th data-sort="name">選手名 ⬍</th>
+              <th data-sort="primary_pos">守備 ⬍</th>
+              <th data-sort="ops_plus" class="highlight-th">OPS+ ⬍</th>
+              <th data-sort="ops">OPS ⬍</th>
+              <th data-sort="avg">打率 ⬍</th>
+              <th data-sort="hr">HR ⬍</th>
+              <th data-sort="rbi">打点 ⬍</th>
+              <th data-sort="wsb">wSB(走塁) ⬍</th>
+              <th data-sort="meet">ミート ⬍</th>
+              <th data-sort="power">パワー ⬍</th>
+              <th data-sort="speed">走力 ⬍</th>
+              <th data-sort="defense">守備力 ⬍</th>
+            </tr>
+          </thead>
+          <tbody id="battersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 2: Pitchers -->
+    <section id="pitchersTab" class="tab-pane">
+      <div class="table-meta">
+        <span id="pitchersCount" class="count-badge">表示: 0名</span>
+      </div>
+      <div class="table-container">
+        <table id="pitchersTable">
+          <thead>
+            <tr>
+              <th data-sort="year">年度 ⬍</th>
+              <th data-sort="team">球団 ⬍</th>
+              <th data-sort="name">選手名 ⬍</th>
+              <th data-sort="fip_minus" class="highlight-th">FIP- ⬍</th>
+              <th data-sort="k_bb_pct" class="highlight-th">K-BB% ⬍</th>
+              <th data-sort="era">防御率 ⬍</th>
+              <th data-sort="fip">FIP ⬍</th>
+              <th data-sort="w">勝 ⬍</th>
+              <th data-sort="l">敗 ⬍</th>
+              <th data-sort="ip">投球回 ⬍</th>
+              <th data-sort="so">奪三振 ⬍</th>
+              <th data-sort="control">制球 ⬍</th>
+              <th data-sort="stuff">球威 ⬍</th>
+              <th data-sort="stamina">スタミナ ⬍</th>
+            </tr>
+          </thead>
+          <tbody id="pitchersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Tab 3: Scatter Plot Visualization -->
+    <section id="scatterTab" class="tab-pane">
+      <div class="chart-controls">
+        <label for="chartTypeSelect">グラフ種類:</label>
+        <select id="chartTypeSelect">
+          <option value="batter_ops_wsb">野手: OPS+ (攻撃力) × wSB (走塁貢献)</option>
+          <option value="batter_meet_power">野手: ミート × パワー (パワプロ散布図)</option>
+          <option value="pitcher_fip_kbb">投手: FIP- (失点抑止力) × K-BB% (支配力)</option>
+          <option value="pitcher_ctrl_stuff">投手: コントロール × 球威 (パワプロ散布図)</option>
+        </select>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="scatterCanvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Tab 4: Player Direct Comparison -->
+    <section id="compareTab" class="tab-pane">
+      <div class="compare-selector">
+        <div class="compare-box">
+          <h3>選手 A</h3>
+          <select id="compareSelectA"></select>
+          <div id="compareCardA" class="player-card"></div>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-box">
+          <h3>選手 B</h3>
+          <select id="compareSelectB"></select>
+          <div id="compareCardB" class="player-card"></div>
+        </div>
+      </div>
+      <div class="compare-chart-wrapper">
+        <canvas id="compareRadarCanvas"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>データ提供元: <a href="https://2689web.com/" target="_blank" rel="noopener">2689web.com (日本プロ野球記録)</a> | NPB Sabermetrics & Pawa-Style Evaluation</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
