@@ -128,9 +128,9 @@ def main():
     parser.add_argument("--years", nargs="+", type=int, default=None,
                         help="Target years to scrape and calculate")
     parser.add_argument("--all", action="store_true",
-                        help="Scrape and calculate all years from 1950 to 2024")
+                        help="Scrape and calculate all years from 1950 to 2025")
     parser.add_argument("--start", type=int, default=1950, help="Start year")
-    parser.add_argument("--end", type=int, default=2024, help="End year")
+    parser.add_argument("--end", type=int, default=2025, help="End year")
     args = parser.parse_args()
 
     if args.all or not args.years:
