@@ -188,6 +188,35 @@
         <canvas id="compareRadarCanvas"></canvas>
       </div>
     </section>
+
+    <!-- Player Career Trend Modal -->
+    <div id="playerModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title-area">
+            <h2 id="modalPlayerName">選手名</h2>
+            <p id="modalPlayerMeta">球団・守備位置・キャリア期間</p>
+          </div>
+          <button id="modalCloseBtn" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-chart-tabs">
+            <button id="modalChartTabPawa" class="modal-tab-btn active">🎮 パワプロ能力推移</button>
+            <button id="modalChartTabSaber" class="modal-tab-btn">📈 セイバー指標推移</button>
+          </div>
+          <div class="modal-chart-wrapper">
+            <canvas id="playerTrendCanvas"></canvas>
+          </div>
+          <h3 class="modal-section-title">📅 年度別キャリア成績一覧</h3>
+          <div class="modal-table-container">
+            <table id="modalCareerTable">
+              <thead id="modalCareerThead"></thead>
+              <tbody id="modalCareerTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer">

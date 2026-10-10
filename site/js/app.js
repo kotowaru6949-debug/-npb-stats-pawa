@@ -6,6 +6,12 @@ let sortOrder = "desc";
 let scatterChart = null;
 let radarChart = null;
 
+// モーダル管理変数
+let modalTrendChart = null;
+let currentModalPlayerRecords = [];
+let currentModalIsBatter = true;
+let currentModalChartType = "pawa"; // "pawa" or "saber"
+
 // パワプロランクバッジ生成
 function getRankBadge(rank, score) {
   const r = rank.toLowerCase();
@@ -18,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupFilters();
   setupSorting();
   setupCsvDownload();
+  setupPlayerModal();
   await loadData();
 });
 
@@ -190,7 +197,7 @@ function renderBatters() {
     <tr>
       <td>${b.year}</td>
       <td>${b.team}</td>
-      <td class="player-name">${b.name} <small>(${b.age})</small></td>
+      <td class="player-name" onclick="openPlayerModal('${b.player_url}', '${encodeURIComponent(b.name)}', true)" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small></td>
       <td><span class="pos-tag">${b.primary_pos}</span></td>
       <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
       <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
@@ -227,7 +234,7 @@ function renderPitchers() {
     <tr>
       <td>${p.year}</td>
       <td>${p.team}</td>
-      <td class="player-name">${p.name} <small>(${p.age})</small></td>
+      <td class="player-name" onclick="openPlayerModal('${p.player_url}', '${encodeURIComponent(p.name)}', false)" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small></td>
       <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
       <td><strong style="color:${p.k_bb_pct >= 20 ? '#ef4444' : '#fff'}">${p.k_bb_pct.toFixed(1)}%</strong></td>
       <td>${p.era.toFixed(2)}</td>
@@ -532,3 +539,431 @@ function setupCsvDownload() {
     URL.revokeObjectURL(url);
   });
 }
+
+// ==========================================
+// 選手個別キャリア推移モーダル
+// ==========================================
+function setupPlayerModal() {
+  const modal = document.getElementById("playerModal");
+  const closeBtn = document.getElementById("modalCloseBtn");
+  const tabPawa = document.getElementById("modalChartTabPawa");
+  const tabSaber = document.getElementById("modalChartTabSaber");
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closePlayerModal);
+  }
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closePlayerModal();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && modal.classList.contains("active")) {
+      closePlayerModal();
+    }
+  });
+
+  if (tabPawa) {
+    tabPawa.addEventListener("click", () => {
+      if (currentModalChartType === "pawa") return;
+      currentModalChartType = "pawa";
+      tabPawa.classList.add("active");
+      tabSaber.classList.remove("active");
+      renderModalTrendChart();
+    });
+  }
+
+  if (tabSaber) {
+    tabSaber.addEventListener("click", () => {
+      if (currentModalChartType === "saber") return;
+      currentModalChartType = "saber";
+      tabSaber.classList.add("active");
+      tabPawa.classList.remove("active");
+      renderModalTrendChart();
+    });
+  }
+}
+
+function closePlayerModal() {
+  const modal = document.getElementById("playerModal");
+  if (modal) modal.classList.remove("active");
+}
+
+function openPlayerModal(playerUrl, encodedName, isBatter) {
+  const playerName = decodeURIComponent(encodedName);
+  const dataPool = isBatter ? allBatters : allPitchers;
+
+  // URLまたは選手名で一致する全年度の記録を抽出
+  let records = [];
+  if (playerUrl && playerUrl !== "null" && playerUrl !== "undefined" && playerUrl !== "") {
+    records = dataPool.filter(d => d.player_url === playerUrl);
+  }
+  if (records.length === 0) {
+    records = dataPool.filter(d => d.name === playerName);
+  }
+
+  // 年度順にソート (古い年度 -> 新しい年度)
+  records.sort((a, b) => a.year - b.year);
+
+  currentModalPlayerRecords = records;
+  currentModalIsBatter = isBatter;
+  currentModalChartType = "pawa";
+
+  // タブボタン状態のリセット
+  const tabPawa = document.getElementById("modalChartTabPawa");
+  const tabSaber = document.getElementById("modalChartTabSaber");
+  if (tabPawa && tabSaber) {
+    tabPawa.classList.add("active");
+    tabSaber.classList.remove("active");
+  }
+
+  // ヘッダー情報の設定
+  const nameEl = document.getElementById("modalPlayerName");
+  const metaEl = document.getElementById("modalPlayerMeta");
+
+  if (nameEl) nameEl.textContent = playerName;
+
+  if (metaEl && records.length > 0) {
+    const years = records.map(r => r.year);
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+
+    const teamList = [];
+    records.forEach(r => {
+      if (!teamList.includes(r.team)) teamList.push(r.team);
+    });
+    const teamsStr = teamList.join(" → ");
+
+    if (isBatter) {
+      const bestOpsPlus = Math.max(...records.map(r => r.ops_plus));
+      const posList = [...new Set(records.map(r => r.primary_pos))].join("/");
+      metaEl.textContent = `在籍球団: ${teamsStr} | 主な守備: ${posList} | 期間: ${minYear}〜${maxYear}年 (${records.length}シーズン) | キャリア最高OPS+: ${bestOpsPlus.toFixed(1)}`;
+    } else {
+      const bestFipMinus = Math.min(...records.map(r => r.fip_minus));
+      const totalWins = records.reduce((sum, r) => sum + (r.w || 0), 0);
+      metaEl.textContent = `在籍球団: ${teamsStr} | 期間: ${minYear}〜${maxYear}年 (${records.length}シーズン) | 規定通算${totalWins}勝 | キャリア最高FIP-: ${bestFipMinus.toFixed(1)}`;
+    }
+  }
+
+  renderModalTrendChart();
+  renderModalCareerTable();
+
+  const modal = document.getElementById("playerModal");
+  if (modal) modal.classList.add("active");
+}
+
+function renderModalTrendChart() {
+  const ctx = document.getElementById("playerTrendCanvas").getContext("2d");
+  if (modalTrendChart) {
+    modalTrendChart.destroy();
+  }
+
+  const labels = currentModalPlayerRecords.map(r => `${r.year} (${r.team})`);
+  let datasets = [];
+  let scalesConfig = {};
+
+  if (currentModalIsBatter) {
+    if (currentModalChartType === "pawa") {
+      datasets = [
+        {
+          label: "ミート",
+          data: currentModalPlayerRecords.map(r => r.meet),
+          borderColor: "#38bdf8",
+          backgroundColor: "#38bdf8",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "パワー",
+          data: currentModalPlayerRecords.map(r => r.power),
+          borderColor: "#f43f5e",
+          backgroundColor: "#f43f5e",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "走力",
+          data: currentModalPlayerRecords.map(r => r.speed),
+          borderColor: "#22c55e",
+          backgroundColor: "#22c55e",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "守備力",
+          data: currentModalPlayerRecords.map(r => r.defense),
+          borderColor: "#eab308",
+          backgroundColor: "#eab308",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        }
+      ];
+      scalesConfig = {
+        y: {
+          min: 0,
+          max: 100,
+          title: { display: true, text: "査定能力値 (1〜100)", color: "#94a3b8" },
+          grid: { color: "#334155" },
+          ticks: { color: "#cbd5e1" }
+        }
+      };
+    } else {
+      datasets = [
+        {
+          label: "OPS+ (打撃傑出度)",
+          data: currentModalPlayerRecords.map(r => r.ops_plus),
+          borderColor: "#f97316",
+          backgroundColor: "#f97316",
+          tension: 0.25,
+          borderWidth: 2.5,
+          pointRadius: 5
+        },
+        {
+          label: "OBP+ (出塁傑出度)",
+          data: currentModalPlayerRecords.map(r => r.obp_plus || 100),
+          borderColor: "#38bdf8",
+          backgroundColor: "#38bdf8",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "ISO+ (純長打傑出度)",
+          data: currentModalPlayerRecords.map(r => r.isop_plus || 100),
+          borderColor: "#ec4899",
+          backgroundColor: "#ec4899",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        }
+      ];
+      scalesConfig = {
+        y: {
+          title: { display: true, text: "セイバー指標 (100 = リーグ平均)", color: "#94a3b8" },
+          grid: { color: "#334155" },
+          ticks: { color: "#cbd5e1" }
+        }
+      };
+    }
+  } else {
+    // 投手
+    if (currentModalChartType === "pawa") {
+      datasets = [
+        {
+          label: "コントロール",
+          data: currentModalPlayerRecords.map(r => r.control),
+          borderColor: "#38bdf8",
+          backgroundColor: "#38bdf8",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "球威/キレ",
+          data: currentModalPlayerRecords.map(r => r.stuff),
+          borderColor: "#ef4444",
+          backgroundColor: "#ef4444",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "スタミナ",
+          data: currentModalPlayerRecords.map(r => r.stamina),
+          borderColor: "#eab308",
+          backgroundColor: "#eab308",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        }
+      ];
+      scalesConfig = {
+        y: {
+          min: 0,
+          max: 100,
+          title: { display: true, text: "査定能力値 (1〜100)", color: "#94a3b8" },
+          grid: { color: "#334155" },
+          ticks: { color: "#cbd5e1" }
+        }
+      };
+    } else {
+      datasets = [
+        {
+          label: "FIP- (時代補正FIP・低いほど優秀)",
+          data: currentModalPlayerRecords.map(r => r.fip_minus),
+          borderColor: "#ef4444",
+          backgroundColor: "#ef4444",
+          tension: 0.25,
+          borderWidth: 2.5,
+          pointRadius: 5,
+          yAxisID: "y"
+        },
+        {
+          label: "K-BB% (奪三振四球差率・高いほど優秀)",
+          data: currentModalPlayerRecords.map(r => r.k_bb_pct),
+          borderColor: "#38bdf8",
+          backgroundColor: "#38bdf8",
+          tension: 0.25,
+          borderWidth: 2.5,
+          pointRadius: 5,
+          yAxisID: "y1"
+        }
+      ];
+      scalesConfig = {
+        y: {
+          type: "linear",
+          display: true,
+          position: "left",
+          title: { display: true, text: "FIP- (100 = リーグ平均)", color: "#ef4444" },
+          grid: { color: "#334155" },
+          ticks: { color: "#cbd5e1" }
+        },
+        y1: {
+          type: "linear",
+          display: true,
+          position: "right",
+          title: { display: true, text: "K-BB% (%)", color: "#38bdf8" },
+          grid: { drawOnChartArea: false },
+          ticks: { color: "#cbd5e1" }
+        }
+      };
+    }
+  }
+
+  modalTrendChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: "index",
+        intersect: false
+      },
+      plugins: {
+        legend: { labels: { color: "#f8fafc", font: { size: 12 } } },
+        tooltip: {
+          backgroundColor: "#1e293b",
+          titleColor: "#f8fafc",
+          bodyColor: "#cbd5e1",
+          borderColor: "#475569",
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: "#334155" },
+          ticks: { color: "#cbd5e1" }
+        },
+        ...scalesConfig
+      }
+    }
+  });
+}
+
+function renderModalCareerTable() {
+  const thead = document.getElementById("modalCareerThead");
+  const tbody = document.getElementById("modalCareerTbody");
+  if (!thead || !tbody) return;
+
+  if (currentModalIsBatter) {
+    thead.innerHTML = `
+      <tr>
+        <th>年度</th>
+        <th>球団</th>
+        <th>年齢</th>
+        <th>守備</th>
+        <th>OPS+</th>
+        <th>OBP+</th>
+        <th>ISO+</th>
+        <th>打率</th>
+        <th>出塁率</th>
+        <th>長打率</th>
+        <th>OPS</th>
+        <th>本塁打</th>
+        <th>打点</th>
+        <th>盗塁</th>
+        <th>ミート</th>
+        <th>パワー</th>
+        <th>走力</th>
+        <th>守備力</th>
+      </tr>
+    `;
+
+    tbody.innerHTML = currentModalPlayerRecords.map(b => `
+      <tr>
+        <td>${b.year}</td>
+        <td>${b.team}</td>
+        <td>${b.age}</td>
+        <td><span class="pos-tag">${b.primary_pos}</span></td>
+        <td><strong style="color:${b.ops_plus >= 150 ? '#ef4444' : '#fff'};">${b.ops_plus.toFixed(1)}</strong></td>
+        <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
+        <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
+        <td>.${b.avg.toFixed(3)}</td>
+        <td>.${b.obp.toFixed(3)}</td>
+        <td>.${b.slg.toFixed(3)}</td>
+        <td>.${b.ops.toFixed(3)}</td>
+        <td>${b.hr}</td>
+        <td>${b.rbi}</td>
+        <td>${b.sb}</td>
+        <td>${getRankBadge(b.meet_rank, b.meet)}</td>
+        <td>${getRankBadge(b.power_rank, b.power)}</td>
+        <td>${getRankBadge(b.speed_rank, b.speed)}</td>
+        <td>${getRankBadge(b.defense_rank, b.defense)}</td>
+      </tr>
+    `).join("");
+  } else {
+    // 投手
+    thead.innerHTML = `
+      <tr>
+        <th>年度</th>
+        <th>球団</th>
+        <th>年齢</th>
+        <th>FIP-</th>
+        <th>K-BB%</th>
+        <th>防御率</th>
+        <th>FIP</th>
+        <th>勝</th>
+        <th>敗</th>
+        <th>回数</th>
+        <th>奪三振</th>
+        <th>与四球</th>
+        <th>制球</th>
+        <th>球威</th>
+        <th>スタミナ</th>
+      </tr>
+    `;
+
+    tbody.innerHTML = currentModalPlayerRecords.map(p => `
+      <tr>
+        <td>${p.year}</td>
+        <td>${p.team}</td>
+        <td>${p.age}</td>
+        <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'};">${p.fip_minus.toFixed(1)}</strong></td>
+        <td><strong style="color:${p.k_bb_pct >= 20 ? '#ef4444' : '#fff'};">${p.k_bb_pct.toFixed(1)}%</strong></td>
+        <td>${p.era.toFixed(2)}</td>
+        <td>${p.fip.toFixed(2)}</td>
+        <td>${p.w}</td>
+        <td>${p.l}</td>
+        <td>${p.ip.toFixed(1)}</td>
+        <td>${p.so}</td>
+        <td>${p.bb}</td>
+        <td>${getRankBadge(p.control_rank, p.control)}</td>
+        <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
+        <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
+      </tr>
+    `).join("");
+  }
+}
+
