@@ -29,18 +29,17 @@ def eval_batter_pawa(stats: Dict[str, Any], lg: Dict[str, float], position: str)
     k_pct = stats["k_pct"]
     e = stats["e"]
 
-    # 1. ミート (1〜99)
-    # リーグ平均打率（.240〜.250）で約52点
-    # .300で72点(B), .330で83点(A), .360で93点(S)
-    diff_avg = avg - lg["lg_avg"]
-    meet_score = 52.0 + (diff_avg * 350.0) + (max(0.0, 18.0 - k_pct) * 0.4)
+    # 1. ミート (1〜99) : OBP+ (出塁率傑出度) を主軸にし、AVG+ (打率傑出度) をブレンド
+    # 四球を選んで出塁する出塁型も、安打を量産する安打製造機も公平に高評価
+    obp_plus = stats.get("obp_plus", 100.0)
+    avg_plus = stats.get("avg_plus", 100.0)
+    meet_score = 52.0 + (obp_plus - 100.0) * 0.55 + (avg_plus - 100.0) * 0.55
     meet = int(min(max(round(meet_score), 15), 99))
 
-    # 2. パワー (1〜99)
-    # 本塁打数と純長打力(IsoP)の複合
-    # 40本超で88+, 30本で80+, 20本で70+, 10本で58+
-    rel_isop = isop / max(lg["lg_isop"], 0.01)
-    power_score = 35.0 + (hr * 1.25) + (rel_isop * 15.0)
+    # 2. パワー (1〜99) : ISO+ (純長打力傑出度) を主軸に査定
+    # 飛ばないボール（統一球等）や飛ぶボール（ラビット等）のボール反発係数の格差を完全平準化
+    isop_plus = stats.get("isop_plus", 100.0)
+    power_score = 30.0 + (isop_plus * 0.25)
     power = int(min(max(round(power_score), 15), 99))
 
     # 3. 走力 (1〜99)

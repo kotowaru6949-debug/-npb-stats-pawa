@@ -104,6 +104,8 @@
               <th data-sort="name">選手名 ⬍</th>
               <th data-sort="primary_pos">守備 ⬍</th>
               <th data-sort="ops_plus" class="highlight-th">OPS+ ⬍</th>
+              <th data-sort="obp_plus" class="highlight-th">OBP+ ⬍</th>
+              <th data-sort="isop_plus" class="highlight-th">ISO+ ⬍</th>
               <th data-sort="ops">OPS ⬍</th>
               <th data-sort="avg">打率 ⬍</th>
               <th data-sort="hr">HR ⬍</th>
@@ -155,6 +157,7 @@
       <div class="chart-controls">
         <label for="chartTypeSelect">グラフ種類:</label>
         <select id="chartTypeSelect">
+          <option value="batter_obp_isop">野手: OBP+ (出塁傑出度) × ISO+ (長打傑出度) ★おすすめ</option>
           <option value="batter_ops_wsb">野手: OPS+ (攻撃力) × wSB (走塁貢献)</option>
           <option value="batter_meet_power">野手: ミート × パワー (パワプロ散布図)</option>
           <option value="pitcher_fip_kbb">投手: FIP- (失点抑止力) × K-BB% (支配力)</option>

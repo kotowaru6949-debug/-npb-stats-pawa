@@ -114,9 +114,12 @@ def calc_batter_metrics(cells: List[str], lg: Dict[str, float]) -> Dict[str, Any
     if ops == 0.0:
         ops = obp + slg
 
-    # OPS+ (Baseball-Reference方式: 100が平均)
+    # セイバー時代補正指標 (100が平均)
     ops_plus = 100.0 * ((obp / max(lg["lg_obp"], 0.001)) + (slg / max(lg["lg_slg"], 0.001)) - 1.0)
+    obp_plus = 100.0 * (obp / max(lg["lg_obp"], 0.001))
+    avg_plus = 100.0 * (avg / max(lg["lg_avg"], 0.001))
     isop = slg - avg
+    isop_plus = 100.0 * (isop / max(lg["lg_isop"], 0.001))
     isod = obp - avg
     k_pct = (so / max(pa, 1)) * 100.0
     bb_pct = (bb / max(pa, 1)) * 100.0
@@ -130,7 +133,10 @@ def calc_batter_metrics(cells: List[str], lg: Dict[str, float]) -> Dict[str, Any
         "rbi": rbi, "sb": sb, "cs": cs, "sh": sh, "sf": sf, "bb": bb, "hbp": hbp, "so": so,
         "gdp": gdp, "e": e, "avg": avg, "obp": obp, "slg": slg, "ops": ops, "age": age,
         "ops_plus": round(ops_plus, 1),
+        "obp_plus": round(obp_plus, 1),
+        "avg_plus": round(avg_plus, 1),
         "isop": round(isop, 3),
+        "isop_plus": round(isop_plus, 1),
         "isod": round(isod, 3),
         "k_pct": round(k_pct, 1),
         "bb_pct": round(bb_pct, 1),

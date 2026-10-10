@@ -193,6 +193,8 @@ function renderBatters() {
       <td class="player-name">${b.name} <small>(${b.age})</small></td>
       <td><span class="pos-tag">${b.primary_pos}</span></td>
       <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
+      <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
+      <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
       <td>${b.ops.toFixed(3)}</td>
       <td>${b.avg.toFixed(3)}</td>
       <td>${b.hr}</td>
@@ -251,7 +253,18 @@ function renderScatterChart() {
   let yLabel = "";
   let chartTitle = "";
 
-  if (chartType === "batter_ops_wsb") {
+  if (chartType === "batter_obp_isop") {
+    const list = getFilteredData(allBatters, true);
+    xLabel = "OBP+ (出塁率傑出度 / 100=平均)";
+    yLabel = "ISO+ (純長打力傑出度 / 100=平均)";
+    chartTitle = "野手: OBP+ (出塁力) × ISO+ (純長打力)";
+    points = list.map(b => ({
+      x: b.obp_plus || 100,
+      y: b.isop_plus || 100,
+      name: `[${b.year} ${b.team}] ${b.name}`,
+      detail: `出塁率.${b.obp.toFixed(3)} HR:${b.hr} OBP+:${(b.obp_plus||100).toFixed(1)} ISO+:${(b.isop_plus||100).toFixed(1)}`
+    }));
+  } else if (chartType === "batter_ops_wsb") {
     const list = getFilteredData(allBatters, true);
     xLabel = "wSB (走塁得点貢献)";
     yLabel = "OPS+ (打撃傑出度 / 100=平均)";
@@ -397,8 +410,8 @@ function renderCompareCard(cardId, item) {
       <h4>${item.year}年 ${item.team}</h4>
       <h2 style="color:var(--accent);">${item.name} <small>(${item.primary_pos})</small></h2>
       <p style="margin:0.5rem 0; font-size:0.9rem;">
-        打率: <strong>.${item.avg.toFixed(3)}</strong> | HR: <strong>${item.hr}</strong> | 打点: <strong>${item.rbi}</strong><br>
-        OPS+: <strong style="color:#ef4444;">${item.ops_plus}</strong> | wSB: <strong>${item.wsb}</strong>
+        打率: <strong>.${item.avg.toFixed(3)}</strong> | 出塁率: <strong>.${item.obp.toFixed(3)}</strong> | HR: <strong>${item.hr}</strong> | 打点: <strong>${item.rbi}</strong><br>
+        OPS+: <strong style="color:#ef4444;">${item.ops_plus}</strong> | OBP+: <strong style="color:#38bdf8;">${(item.obp_plus||100).toFixed(1)}</strong> | ISO+: <strong style="color:#f472b6;">${(item.isop_plus||100).toFixed(1)}</strong> | wSB: <strong>${item.wsb}</strong>
       </p>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.75rem;">
         <div>ミート: ${getRankBadge(item.meet_rank, item.meet)}</div>
