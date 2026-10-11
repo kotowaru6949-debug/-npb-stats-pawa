@@ -50,7 +50,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto 1rem;
 }
 
@@ -101,7 +101,7 @@ body {
 .tabs-nav {
   display: flex;
   gap: 0.5rem;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -129,10 +129,10 @@ body {
 /* Main */
 .main-content {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.5rem;
 }
 
 /* Filters */
@@ -219,15 +219,32 @@ body {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow-x: auto;
+  overflow: auto;
+  max-height: calc(100vh - 270px);
+  min-height: 420px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.table-container::-webkit-scrollbar-track {
+  background: #151e2e;
+}
+.table-container::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: right;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   white-space: nowrap;
 }
 
@@ -235,11 +252,14 @@ th {
   background: #192233;
   color: var(--text-muted);
   font-weight: 600;
-  padding: 0.75rem 0.9rem;
+  padding: 0.55rem 0.45rem;
   cursor: pointer;
   user-select: none;
   transition: background 0.2s;
   border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 th:hover {
@@ -252,7 +272,7 @@ th.highlight-th {
 }
 
 td {
-  padding: 0.65rem 0.9rem;
+  padding: 0.45rem 0.45rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -281,15 +301,15 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
 
 .player-name::after {
   content: " 🔍";
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   opacity: 0.6;
 }
 
 .pos-tag {
   display: inline-block;
-  padding: 0.15rem 0.4rem;
+  padding: 0.1rem 0.35rem;
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   background: var(--bg-tertiary);
   color: #cbd5e1;
@@ -297,20 +317,21 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
 
 /* Badges (Pawa-Style) */
 .pawa-cell {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.35rem;
+  gap: 0.25rem;
+  font-size: 0.8rem;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  width: 17px;
+  height: 17px;
+  border-radius: 3px;
+  font-size: 0.68rem;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 1px 1px rgba(0,0,0,0.5);
