@@ -211,6 +211,7 @@ function renderBatters() {
       <td>${getRankBadge(b.power_rank, b.power)}</td>
       <td>${getRankBadge(b.speed_rank, b.speed)}</td>
       <td>${getRankBadge(b.defense_rank, b.defense)}</td>
+      <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
     </tr>
   `).join("");
 }
@@ -292,6 +293,17 @@ function renderScatterChart() {
       y: b.power,
       name: `[${b.year} ${b.team}] ${b.name}`,
       detail: `ミート:${b.meet}(${b.meet_rank}) パワー:${b.power}(${b.power_rank}) HR:${b.hr}`
+    }));
+  } else if (chartType === "batter_def_field") {
+    const list = getFilteredData(allBatters, true);
+    xLabel = "守備力 (RRF 守備範囲 / 1〜100)";
+    yLabel = "捕球 (エラー回避・守備率 / 1〜100)";
+    chartTitle = "野手: 守備力 (守備範囲) × 捕球 (エラー回避)";
+    points = list.map(b => ({
+      x: b.defense,
+      y: b.fielding,
+      name: `[${b.year} ${b.team}] ${b.name} (${b.primary_pos})`,
+      detail: `守備力:${b.defense}(${b.defense_rank}) 捕球:${b.fielding}(${b.fielding_rank}) RRF:${b.rrf}% 守備率:${b.fpct}`
     }));
   } else if (chartType === "pitcher_fip_kbb") {
     const list = getFilteredData(allPitchers, false);
@@ -420,11 +432,12 @@ function renderCompareCard(cardId, item) {
         打率: <strong>.${item.avg.toFixed(3)}</strong> | 出塁率: <strong>.${item.obp.toFixed(3)}</strong> | HR: <strong>${item.hr}</strong> | 打点: <strong>${item.rbi}</strong><br>
         OPS+: <strong style="color:#ef4444;">${item.ops_plus}</strong> | OBP+: <strong style="color:#38bdf8;">${(item.obp_plus||100).toFixed(1)}</strong> | ISO+: <strong style="color:#f472b6;">${(item.isop_plus||100).toFixed(1)}</strong> | wSB: <strong>${item.wsb}</strong>
       </p>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.75rem;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(95px, 1fr)); gap:0.5rem; margin-top:0.75rem;">
         <div>ミート: ${getRankBadge(item.meet_rank, item.meet)}</div>
         <div>パワー: ${getRankBadge(item.power_rank, item.power)}</div>
         <div>走力: ${getRankBadge(item.speed_rank, item.speed)}</div>
         <div>守備力: ${getRankBadge(item.defense_rank, item.defense)}</div>
+        <div>捕球: ${getRankBadge(item.fielding_rank, item.fielding)}</div>
       </div>
     `;
   } else {
@@ -453,9 +466,9 @@ function renderCompareRadar(a, b) {
   let dataB = [];
 
   if (a.type === "b" && b.type === "b") {
-    labels = ["ミート", "パワー", "走力", "守備力", "打撃傑出度(OPS+/2)"];
-    dataA = [a.meet, a.power, a.speed, a.defense, Math.min(100, Math.round(a.ops_plus / 2))];
-    dataB = [b.meet, b.power, b.speed, b.defense, Math.min(100, Math.round(b.ops_plus / 2))];
+    labels = ["ミート", "パワー", "走力", "守備力(範囲)", "捕球(確実性)"];
+    dataA = [a.meet, a.power, a.speed, a.defense, a.fielding || 50];
+    dataB = [b.meet, b.power, b.speed, b.defense, b.fielding || 50];
   } else if (a.type === "p" && b.type === "p") {
     labels = ["コントロール", "球威/キレ", "スタミナ", "支配力(K-BB%*3)", "失点抑止(200-FIP-)"];
     dataA = [a.control, a.stuff, a.stamina, Math.min(100, Math.round(a.k_bb_pct * 3)), Math.min(100, Math.max(0, 200 - Math.round(a.fip_minus)))];
@@ -697,10 +710,19 @@ function renderModalTrendChart() {
           pointRadius: 4
         },
         {
-          label: "守備力",
+          label: "守備力 (範囲)",
           data: currentModalPlayerRecords.map(r => r.defense),
           borderColor: "#eab308",
           backgroundColor: "#eab308",
+          tension: 0.25,
+          borderWidth: 2,
+          pointRadius: 4
+        },
+        {
+          label: "捕球 (エラー回避)",
+          data: currentModalPlayerRecords.map(r => r.fielding || 50),
+          borderColor: "#a855f7",
+          backgroundColor: "#a855f7",
           tension: 0.25,
           borderWidth: 2,
           pointRadius: 4
@@ -898,6 +920,7 @@ function renderModalCareerTable() {
         <th>パワー</th>
         <th>走力</th>
         <th>守備力</th>
+        <th>捕球</th>
       </tr>
     `;
 
@@ -921,6 +944,7 @@ function renderModalCareerTable() {
         <td>${getRankBadge(b.power_rank, b.power)}</td>
         <td>${getRankBadge(b.speed_rank, b.speed)}</td>
         <td>${getRankBadge(b.defense_rank, b.defense)}</td>
+        <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
       </tr>
     `).join("");
   } else {

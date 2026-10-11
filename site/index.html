@@ -115,6 +115,7 @@
               <th data-sort="power">パワー ⬍</th>
               <th data-sort="speed">走力 ⬍</th>
               <th data-sort="defense">守備力 ⬍</th>
+              <th data-sort="fielding">捕球 ⬍</th>
             </tr>
           </thead>
           <tbody id="battersBody"></tbody>
@@ -159,7 +160,8 @@
         <select id="chartTypeSelect">
           <option value="batter_obp_isop">野手: OBP+ (出塁傑出度) × ISO+ (長打傑出度) ★おすすめ</option>
           <option value="batter_ops_wsb">野手: OPS+ (攻撃力) × wSB (走塁貢献)</option>
-          <option value="batter_meet_power">野手: ミート × パワー (パワプロ散布図)</option>
+          <option value="batter_meet_power">野手: ミート × パワー (パワプロ打撃散布図)</option>
+          <option value="batter_def_field">野手: 守備力(守備範囲/RRF) × 捕球(エラー回避/守備率) ★新指標</option>
           <option value="pitcher_fip_kbb">投手: FIP- (失点抑止力) × K-BB% (支配力)</option>
           <option value="pitcher_ctrl_stuff">投手: コントロール × 球威 (パワプロ散布図)</option>
         </select>
@@ -220,7 +222,7 @@
   </main>
 
   <footer class="footer">
-    <p>データ提供元: <a href="https://2689web.com/" target="_blank" rel="noopener">2689web.com (日本プロ野球記録)</a> | NPB Sabermetrics & Pawa-Style Evaluation</p>
+    <p>データ提供元: <a href="https://2689web.com/" target="_blank" rel="noopener">2689web.com (日本プロ野球記録)</a> | 査定基準: パワー(ISO+) / ミート(OBP+・打率) / 守備力(RRF 100%・ポジション補正なし) / 捕球(守備率 100%) | 1950〜2025年 全76年間網羅</p>
   </footer>
 
   <script src="js/app.js"></script>

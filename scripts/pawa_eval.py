@@ -16,8 +16,8 @@ def score_to_rank(score: int) -> str:
     if score >= 20: return "F"
     return "G"
 
-def eval_batter_pawa(stats: Dict[str, Any], lg: Dict[str, float], position: str) -> Dict[str, Any]:
-    """打者のパワプロ能力（ミート、パワー、走力、守備力）を査定"""
+def eval_batter_pawa(stats: Dict[str, Any], lg: Dict[str, float], position: str, fielding_info: Dict[str, Any] = None) -> Dict[str, Any]:
+    """打者のパワプロ能力（ミート、パワー、走力、守備力、捕球）を査定"""
     avg = stats["avg"]
     hr = stats["hr"]
     sb = stats["sb"]
@@ -30,45 +30,64 @@ def eval_batter_pawa(stats: Dict[str, Any], lg: Dict[str, float], position: str)
     e = stats["e"]
 
     # 1. ミート (1〜99) : OBP+ (出塁率傑出度) を主軸にし、AVG+ (打率傑出度) をブレンド
-    # 四球を選んで出塁する出塁型も、安打を量産する安打製造機も公平に高評価
     obp_plus = stats.get("obp_plus", 100.0)
     avg_plus = stats.get("avg_plus", 100.0)
     meet_score = 52.0 + (obp_plus - 100.0) * 0.55 + (avg_plus - 100.0) * 0.55
     meet = int(min(max(round(meet_score), 15), 99))
 
     # 2. パワー (1〜99) : ISO+ (純長打力傑出度) を主軸に査定
-    # 飛ばないボール（統一球等）や飛ぶボール（ラビット等）のボール反発係数の格差を完全平準化
     isop_plus = stats.get("isop_plus", 100.0)
     power_score = 30.0 + (isop_plus * 0.25)
     power = int(min(max(round(power_score), 15), 99))
 
-    # 3. 走力 (1〜99)
-    # 盗塁数、三塁打、併打率から算出
-    # 40盗塁以上で90+(S), 25盗塁で80+(A), 15盗塁で70+(B), 5盗塁で55+(D)
+    # 3. 走力 (1〜99) : 盗塁数、三塁打、併打率から算出
     gdp_penalty = (gdp / max(pa, 1)) * 120.0
     speed_score = 50.0 + (sb * 1.25) - (cs * 0.8) + (b3 * 2.5) - gdp_penalty
     speed = int(min(max(round(speed_score), 18), 99))
 
-    # 4. 守備力 (1〜99)
-    # 主守備位置の基礎点 + 失策・実力補正
-    pos_base = {
-        "遊": 72, "捕": 68, "二": 65, "中": 63,
-        "三": 58, "左": 50, "右": 52, "外": 52,
-        "一": 45, "指": 25, "投": 50
-    }
-    base = pos_base.get(position, 50)
-    # 失策による減点（失策少なければボーナス）
-    error_adjustment = max(-15.0, min(10.0, 6.0 - (e * 0.8)))
-    defense_score = base + error_adjustment
-    defense = int(min(max(round(defense_score), 20), 96))
+    # 4. 守備力 (1〜99) : RRF (相対レンジファクター) 100% で査定（ポジション補正なし）
+    # 同守備位置のリーグ平均RF (100) で 52点 (D)。アウト獲得能力・守備範囲を純粋評価。
+    # 外野手はレフト・センター・ライトを合算した外野手全体で相対化。
+    f_info = fielding_info or {}
+    primary_pos = f_info.get("primary_pos", position)
+    rrf = f_info.get("rrf", 100.0)
+    rf = f_info.get("rf", 0.0)
+    fpct = f_info.get("fpct", 0.0)
+    avg_fpct = f_info.get("avg_fpct", 0.0)
+
+    if primary_pos == "指":
+        defense = 25
+    elif primary_pos == "投":
+        defense = 50
+    else:
+        def_score = 52.0 + (rrf - 100.0) * 2.3
+        defense = int(min(max(round(def_score), 15), 99))
+
+    # 5. 捕球 / エラー回避 (1〜99) : 守備率 (FPCT) 100% で査定
+    # 同ポジションのリーグ平均守備率との差分から算出。ポロリや悪送球の少なさを評価。
+    if primary_pos == "指":
+        fielding = 30
+    elif primary_pos == "投":
+        fielding = 50
+    elif avg_fpct > 0 and fpct > 0:
+        delta_fpct = fpct - avg_fpct
+        field_score = 52.0 + (delta_fpct * 1800.0)
+        fielding = int(min(max(round(field_score), 15), 99))
+    else:
+        fielding = int(min(max(round(55.0 - (e * 1.2)), 20), 90))
 
     return {
         "meet": meet, "meet_rank": score_to_rank(meet),
         "power": power, "power_rank": score_to_rank(power),
         "speed": speed, "speed_rank": score_to_rank(speed),
         "defense": defense, "defense_rank": score_to_rank(defense),
-        "primary_pos": position
+        "fielding": fielding, "fielding_rank": score_to_rank(fielding),
+        "primary_pos": primary_pos,
+        "rf": round(rf, 3),
+        "rrf": round(rrf, 1),
+        "fpct": round(fpct, 3)
     }
+
 
 def eval_pitcher_pawa(stats: Dict[str, Any], lg: Dict[str, float]) -> Dict[str, Any]:
     """投手のパワプロ能力（コントロール、球威、スタミナ）を査定"""
