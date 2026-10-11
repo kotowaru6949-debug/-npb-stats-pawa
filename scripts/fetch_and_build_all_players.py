@@ -220,8 +220,17 @@ def calc_pitcher_sabermetrics(stats, lg):
     era_minus = 100.0 * (era / max(lg["lg_era"], 0.001))
     k_pct = (so / max(tbf, 1)) * 100.0
     bb_pct = (bb / max(tbf, 1)) * 100.0
+    hr_pct = (hr / max(tbf, 1)) * 100.0
     k_bb_pct = k_pct - bb_pct
     k_bb = so - bb
+
+    lg_k = lg.get("lg_k_pct", 19.0)
+    lg_bb = lg.get("lg_bb_pct", 7.5)
+    lg_hr = lg.get("lg_hr_pct", 2.0)
+    k_pct_plus = 100.0 * (k_pct / max(lg_k, 0.001))
+    bb_pct_minus = 100.0 * (bb_pct / max(lg_bb, 0.001))
+    hr_pct_minus = 100.0 * (hr_pct / max(lg_hr, 0.001))
+
     k9 = (so * 9.0) / max(ip, 1.0)
     bb9 = (bb * 9.0) / max(ip, 1.0)
     hr9 = (hr * 9.0) / max(ip, 1.0)
@@ -235,7 +244,11 @@ def calc_pitcher_sabermetrics(stats, lg):
         "era_minus": round(era_minus, 1),
         "k_pct": round(k_pct, 1),
         "bb_pct": round(bb_pct, 1),
+        "hr_pct": round(hr_pct, 2),
         "k_bb_pct": round(k_bb_pct, 1),
+        "k_pct_plus": round(k_pct_plus, 1),
+        "bb_pct_minus": round(bb_pct_minus, 1),
+        "hr_pct_minus": round(hr_pct_minus, 1),
         "k_bb": k_bb,
         "k9": round(k9, 2),
         "bb9": round(bb9, 2),

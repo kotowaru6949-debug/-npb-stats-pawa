@@ -97,17 +97,18 @@ def eval_pitcher_pawa(stats: Dict[str, Any], lg: Dict[str, float]) -> Dict[str, 
     k_pct = stats["k_pct"]
     hr = stats["hr"]
 
-    # 1. コントロール (1〜99)
-    # リーグ平均 BB% (7.5%) で約58点
-    # BB% 3.0%未満で90+(S), 4.5%で82+(A), 6.0%で72+(B)
-    ctrl_score = 95.0 - (bb_pct * 5.2)
+    # 1. コントロール (1〜99) : BB%- (与四球抑止力傑出度、100が平均) を主軸に査定
+    # リーグ平均 (100) で約58点 (D)。50以下で80+(A), 25以下で87+(A〜S)
+    bb_pct_minus = stats.get("bb_pct_minus", 100.0)
+    ctrl_score = 96.0 - (bb_pct_minus * 0.38)
     control = int(min(max(round(ctrl_score), 15), 99))
 
-    # 2. 球威 / 奪三振力 (1〜99)
-    # リーグ平均 K% (19%) で約60点
-    # K% 28%以上で90+(S), 24%で80+(A), 20%で70+(B)
-    hr_rate_penalty = (hr / max(ip, 1.0)) * 15.0
-    stuff_score = 25.0 + (k_pct * 2.2) - hr_rate_penalty
+    # 2. 球威 / 奪三振力 (1〜99) : K%+ (奪三振傑出度) と HR%- (被弾抑止傑出度) で査定
+    # リーグ平均 (100) で約62点 (C)。K%+ 150+ で80+(A), 180+ で90+(S)
+    # 被本塁打が平均より多ければ減点、少なければ加点
+    k_pct_plus = stats.get("k_pct_plus", 100.0)
+    hr_pct_minus = stats.get("hr_pct_minus", 100.0)
+    stuff_score = 30.0 + (k_pct_plus * 0.32) - ((hr_pct_minus - 100.0) * 0.12)
     stuff = int(min(max(round(stuff_score), 15), 99))
 
     # 3. スタミナ (1〜99)

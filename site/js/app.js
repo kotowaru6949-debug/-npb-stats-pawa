@@ -139,8 +139,8 @@ function setupSorting() {
         sortOrder = sortOrder === "asc" ? "desc" : "asc";
       } else {
         sortKey = key;
-        // FIP-やERAは昇順デフォルト、それ以外は降順デフォルト
-        sortOrder = (key === "fip_minus" || key === "era" || key === "fip") ? "asc" : "desc";
+        // FIP-, ERA, BB%-, HR%- は昇順デフォルト（低いほど優秀）、それ以外は降順デフォルト
+        sortOrder = (key === "fip_minus" || key === "era" || key === "fip" || key === "bb_pct_minus" || key === "hr_pct_minus") ? "asc" : "desc";
       }
       renderCurrentTab();
     });
@@ -239,9 +239,12 @@ function renderPitchers() {
       <td>${p.team}</td>
       <td class="player-name" onclick="openPlayerModal('${p.player_url}', '${encodeURIComponent(p.name)}', false)" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
       <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
-      <td><strong style="color:${p.k_bb_pct >= 20 ? '#ef4444' : '#fff'}">${p.k_bb_pct.toFixed(1)}%</strong></td>
+      <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
+      <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
+      <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
       <td>${p.era.toFixed(2)}</td>
       <td>${p.fip.toFixed(2)}</td>
+      <td>${p.k_bb_pct.toFixed(1)}%</td>
       <td>${p.w}</td>
       <td>${p.l}</td>
       <td>${p.ip.toFixed(1)}</td>
@@ -306,6 +309,17 @@ function renderScatterChart() {
       y: b.fielding,
       name: `[${b.year} ${b.team}] ${b.name} (${b.primary_pos})`,
       detail: `守備力:${b.defense}(${b.defense_rank}) 捕球:${b.fielding}(${b.fielding_rank}) RRF:${b.rrf}% 守備率:${b.fpct}`
+    }));
+  } else if (chartType === "pitcher_k_bb_era") {
+    const list = getFilteredData(allPitchers, false);
+    xLabel = "K%+ (奪三振傑出度 / 100=平均・高いほど優秀)";
+    yLabel = "BB%- (与四球抑止力 / 100=平均・低いほど優秀)";
+    chartTitle = "投手: K%+ (奪三振力) × BB%- (制球力) 【時代補正】";
+    points = list.map(p => ({
+      x: p.k_pct_plus || 100,
+      y: p.bb_pct_minus || 100,
+      name: `[${p.year} ${p.team}] ${p.name}`,
+      detail: `K%+:${(p.k_pct_plus||100).toFixed(1)} BB%-:${(p.bb_pct_minus||100).toFixed(1)} HR%-:${(p.hr_pct_minus||100).toFixed(1)} 防御率:${p.era}`
     }));
   } else if (chartType === "pitcher_fip_kbb") {
     const list = getFilteredData(allPitchers, false);
@@ -447,8 +461,8 @@ function renderCompareCard(cardId, item) {
       <h4>${item.year}年 ${item.team}</h4>
       <h2 style="color:var(--accent);">${item.name}</h2>
       <p style="margin:0.5rem 0; font-size:0.9rem;">
-        防御率: <strong>${item.era}</strong> | 勝利: <strong>${item.w}勝${item.l}敗</strong> | 奪三振: <strong>${item.so}</strong><br>
-        FIP-: <strong style="color:#ef4444;">${item.fip_minus}</strong> | K-BB%: <strong>${item.k_bb_pct}%</strong>
+        防御率: <strong>${item.era}</strong> | 勝利: <strong>${item.w}勝${item.l}敗${item.sv > 0 ? item.sv + 'S' : ''}</strong> | 奪三振: <strong>${item.so}</strong><br>
+        FIP-: <strong style="color:#ef4444;">${item.fip_minus}</strong> | K%+: <strong style="color:#38bdf8;">${(item.k_pct_plus||100).toFixed(1)}</strong> | BB%-: <strong style="color:#4ade80;">${(item.bb_pct_minus||100).toFixed(1)}</strong> | HR%-: <strong>${(item.hr_pct_minus||100).toFixed(1)}</strong>
       </p>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.75rem;">
         <div>制球: ${getRankBadge(item.control_rank, item.control)}</div>
@@ -957,14 +971,16 @@ function renderModalCareerTable() {
         <th>球団</th>
         <th>年齢</th>
         <th>FIP-</th>
-        <th>K-BB%</th>
+        <th>K%+</th>
+        <th>BB%-</th>
+        <th>HR%-</th>
         <th>防御率</th>
         <th>FIP</th>
+        <th>K-BB%</th>
         <th>勝</th>
         <th>敗</th>
         <th>回数</th>
         <th>奪三振</th>
-        <th>与四球</th>
         <th>制球</th>
         <th>球威</th>
         <th>スタミナ</th>
@@ -977,14 +993,16 @@ function renderModalCareerTable() {
         <td>${p.team}</td>
         <td>${p.age}</td>
         <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'};">${p.fip_minus.toFixed(1)}</strong></td>
-        <td><strong style="color:${p.k_bb_pct >= 20 ? '#ef4444' : '#fff'};">${p.k_bb_pct.toFixed(1)}%</strong></td>
+        <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
+        <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
+        <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
         <td>${p.era.toFixed(2)}</td>
         <td>${p.fip.toFixed(2)}</td>
+        <td>${p.k_bb_pct.toFixed(1)}%</td>
         <td>${p.w}</td>
         <td>${p.l}</td>
         <td>${p.ip.toFixed(1)}</td>
         <td>${p.so}</td>
-        <td>${p.bb}</td>
         <td>${getRankBadge(p.control_rank, p.control)}</td>
         <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
         <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
