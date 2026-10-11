@@ -315,6 +315,18 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
   color: #cbd5e1;
 }
 
+.tag-sub {
+  display: inline-block;
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+
 /* Badges (Pawa-Style) */
 .pawa-cell {
   display: inline-flex;

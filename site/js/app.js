@@ -95,7 +95,7 @@ function setupTabs() {
 
 // フィルターイベント設定
 function setupFilters() {
-  ["yearFilter", "leagueFilter", "teamFilter", "posFilter", "searchQuery"].forEach(id => {
+  ["yearFilter", "leagueFilter", "teamFilter", "posFilter", "qualFilter", "searchQuery"].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener("input", () => renderCurrentTab());
@@ -153,6 +153,7 @@ function getFilteredData(dataList, isBatter = true) {
   const league = document.getElementById("leagueFilter").value;
   const team = document.getElementById("teamFilter").value;
   const pos = document.getElementById("posFilter").value;
+  const qual = document.getElementById("qualFilter") ? document.getElementById("qualFilter").value : "all";
   const query = document.getElementById("searchQuery").value.trim().toLowerCase();
 
   return dataList.filter(item => {
@@ -160,6 +161,7 @@ function getFilteredData(dataList, isBatter = true) {
     if (league !== "all" && item.league !== league) return false;
     if (team !== "all" && item.team !== team) return false;
     if (isBatter && pos !== "all" && item.primary_pos !== pos) return false;
+    if (qual === "qual" && !item.is_qual) return false;
     if (query && !item.name.toLowerCase().includes(query)) return false;
     return true;
   });
@@ -197,7 +199,7 @@ function renderBatters() {
     <tr>
       <td>${b.year}</td>
       <td>${b.team}</td>
-      <td class="player-name" onclick="openPlayerModal('${b.player_url}', '${encodeURIComponent(b.name)}', true)" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small></td>
+      <td class="player-name" onclick="openPlayerModal('${b.player_url}', '${encodeURIComponent(b.name)}', true)" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small>${!b.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
       <td><span class="pos-tag">${b.primary_pos}</span></td>
       <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
       <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
@@ -235,7 +237,7 @@ function renderPitchers() {
     <tr>
       <td>${p.year}</td>
       <td>${p.team}</td>
-      <td class="player-name" onclick="openPlayerModal('${p.player_url}', '${encodeURIComponent(p.name)}', false)" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small></td>
+      <td class="player-name" onclick="openPlayerModal('${p.player_url}', '${encodeURIComponent(p.name)}', false)" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
       <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
       <td><strong style="color:${p.k_bb_pct >= 20 ? '#ef4444' : '#fff'}">${p.k_bb_pct.toFixed(1)}%</strong></td>
       <td>${p.era.toFixed(2)}</td>
