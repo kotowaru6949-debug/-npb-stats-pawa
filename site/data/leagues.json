@@ -12,7 +12,9 @@
       "total_ip": 9840.6667,
       "lg_k_pct": 8.7,
       "lg_bb_pct": 8.82,
-      "lg_hr_pct": 2.18
+      "lg_hr_pct": 2.18,
+      "qual_avg_ip": 261.6,
+      "max_cg": 33
     },
     "pl": {
       "lg_avg": 0.2603,
@@ -25,7 +27,9 @@
       "total_ip": 7463.6667,
       "lg_k_pct": 9.73,
       "lg_bb_pct": 7.43,
-      "lg_hr_pct": 1.96
+      "lg_hr_pct": 1.96,
+      "qual_avg_ip": 227.4,
+      "max_cg": 27
     }
   },
   {
@@ -41,7 +45,9 @@
       "total_ip": 6871.6667,
       "lg_k_pct": 7.98,
       "lg_bb_pct": 8.6,
-      "lg_hr_pct": 1.71
+      "lg_hr_pct": 1.71,
+      "qual_avg_ip": 213.3,
+      "max_cg": 25
     },
     "pl": {
       "lg_avg": 0.2465,
@@ -54,7 +60,9 @@
       "total_ip": 6392.0,
       "lg_k_pct": 8.87,
       "lg_bb_pct": 7.01,
-      "lg_hr_pct": 1.38
+      "lg_hr_pct": 1.38,
+      "qual_avg_ip": 191.1,
+      "max_cg": 27
     }
   },
   {
@@ -70,7 +78,9 @@
       "total_ip": 7542.6667,
       "lg_k_pct": 8.51,
       "lg_bb_pct": 8.1,
-      "lg_hr_pct": 1.32
+      "lg_hr_pct": 1.32,
+      "qual_avg_ip": 250.5,
+      "max_cg": 28
     },
     "pl": {
       "lg_avg": 0.2541,
@@ -83,7 +93,9 @@
       "total_ip": 7269.0,
       "lg_k_pct": 8.96,
       "lg_bb_pct": 7.55,
-      "lg_hr_pct": 1.46
+      "lg_hr_pct": 1.46,
+      "qual_avg_ip": 206.1,
+      "max_cg": 20
     }
   },
   {
@@ -99,7 +111,9 @@
       "total_ip": 6863.6667,
       "lg_k_pct": 9.23,
       "lg_bb_pct": 7.81,
-      "lg_hr_pct": 1.47
+      "lg_hr_pct": 1.47,
+      "qual_avg_ip": 226.6,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2474,
@@ -112,7 +126,9 @@
       "total_ip": 7678.6667,
       "lg_k_pct": 10.32,
       "lg_bb_pct": 7.38,
-      "lg_hr_pct": 1.22
+      "lg_hr_pct": 1.22,
+      "qual_avg_ip": 234.0,
+      "max_cg": 26
     }
   },
   {
@@ -128,7 +144,9 @@
       "total_ip": 6958.0,
       "lg_k_pct": 10.62,
       "lg_bb_pct": 7.01,
-      "lg_hr_pct": 1.42
+      "lg_hr_pct": 1.42,
+      "qual_avg_ip": 303.5,
+      "max_cg": 28
     },
     "pl": {
       "lg_avg": 0.2418,
@@ -141,7 +159,9 @@
       "total_ip": 10105.0,
       "lg_k_pct": 11.9,
       "lg_bb_pct": 7.93,
-      "lg_hr_pct": 1.29
+      "lg_hr_pct": 1.29,
+      "qual_avg_ip": 268.0,
+      "max_cg": 23
     }
   },
   {
@@ -157,7 +177,9 @@
       "total_ip": 7081.3333,
       "lg_k_pct": 12.88,
       "lg_bb_pct": 6.65,
-      "lg_hr_pct": 1.42
+      "lg_hr_pct": 1.42,
+      "qual_avg_ip": 276.6,
+      "max_cg": 34
     },
     "pl": {
       "lg_avg": 0.2458,
@@ -170,7 +192,9 @@
       "total_ip": 10227.6667,
       "lg_k_pct": 12.35,
       "lg_bb_pct": 7.42,
-      "lg_hr_pct": 1.22
+      "lg_hr_pct": 1.22,
+      "qual_avg_ip": 251.8,
+      "max_cg": 25
     }
   },
   {
@@ -186,7 +210,9 @@
       "total_ip": 7059.0,
       "lg_k_pct": 13.6,
       "lg_bb_pct": 6.35,
-      "lg_hr_pct": 1.41
+      "lg_hr_pct": 1.41,
+      "qual_avg_ip": 273.7,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2325,
@@ -199,7 +225,9 @@
       "total_ip": 11085.3333,
       "lg_k_pct": 12.74,
       "lg_bb_pct": 7.03,
-      "lg_hr_pct": 1.08
+      "lg_hr_pct": 1.08,
+      "qual_avg_ip": 284.1,
+      "max_cg": 20
     }
   },
   {
@@ -215,7 +243,9 @@
       "total_ip": 7025.0,
       "lg_k_pct": 14.67,
       "lg_bb_pct": 6.59,
-      "lg_hr_pct": 1.54
+      "lg_hr_pct": 1.54,
+      "qual_avg_ip": 264.1,
+      "max_cg": 27
     },
     "pl": {
       "lg_avg": 0.2347,
@@ -228,7 +258,9 @@
       "total_ip": 8301.0,
       "lg_k_pct": 14.08,
       "lg_bb_pct": 7.34,
-      "lg_hr_pct": 1.34
+      "lg_hr_pct": 1.34,
+      "qual_avg_ip": 254.8,
+      "max_cg": 26
     }
   },
   {
@@ -244,7 +276,9 @@
       "total_ip": 7088.0,
       "lg_k_pct": 14.78,
       "lg_bb_pct": 6.53,
-      "lg_hr_pct": 1.73
+      "lg_hr_pct": 1.73,
+      "qual_avg_ip": 284.8,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2362,
@@ -257,7 +291,9 @@
       "total_ip": 7036.6667,
       "lg_k_pct": 15.02,
       "lg_bb_pct": 6.55,
-      "lg_hr_pct": 1.29
+      "lg_hr_pct": 1.29,
+      "qual_avg_ip": 269.5,
+      "max_cg": 25
     }
   },
   {
@@ -273,7 +309,9 @@
       "total_ip": 7018.0,
       "lg_k_pct": 15.6,
       "lg_bb_pct": 7.0,
-      "lg_hr_pct": 1.77
+      "lg_hr_pct": 1.77,
+      "qual_avg_ip": 271.1,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2414,
@@ -286,7 +324,9 @@
       "total_ip": 7345.0,
       "lg_k_pct": 14.98,
       "lg_bb_pct": 6.31,
-      "lg_hr_pct": 1.51
+      "lg_hr_pct": 1.51,
+      "qual_avg_ip": 277.2,
+      "max_cg": 23
     }
   },
   {
@@ -302,7 +342,9 @@
       "total_ip": 6967.0,
       "lg_k_pct": 15.23,
       "lg_bb_pct": 6.98,
-      "lg_hr_pct": 1.76
+      "lg_hr_pct": 1.76,
+      "qual_avg_ip": 258.1,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2457,
@@ -315,7 +357,9 @@
       "total_ip": 7209.0,
       "lg_k_pct": 15.83,
       "lg_bb_pct": 6.35,
-      "lg_hr_pct": 1.73
+      "lg_hr_pct": 1.73,
+      "qual_avg_ip": 247.1,
+      "max_cg": 22
     }
   },
   {
@@ -331,7 +375,9 @@
       "total_ip": 7053.3333,
       "lg_k_pct": 14.29,
       "lg_bb_pct": 7.19,
-      "lg_hr_pct": 1.59
+      "lg_hr_pct": 1.59,
+      "qual_avg_ip": 263.1,
+      "max_cg": 32
     },
     "pl": {
       "lg_avg": 0.248,
@@ -344,7 +390,9 @@
       "total_ip": 7490.3333,
       "lg_k_pct": 15.73,
       "lg_bb_pct": 6.64,
-      "lg_hr_pct": 1.84
+      "lg_hr_pct": 1.84,
+      "qual_avg_ip": 279.8,
+      "max_cg": 25
     }
   },
   {
@@ -360,7 +408,9 @@
       "total_ip": 7308.3333,
       "lg_k_pct": 15.36,
       "lg_bb_pct": 6.26,
-      "lg_hr_pct": 1.73
+      "lg_hr_pct": 1.73,
+      "qual_avg_ip": 268.2,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2501,
@@ -373,7 +423,9 @@
       "total_ip": 7114.0,
       "lg_k_pct": 15.5,
       "lg_bb_pct": 6.6,
-      "lg_hr_pct": 1.76
+      "lg_hr_pct": 1.76,
+      "qual_avg_ip": 234.5,
+      "max_cg": 23
     }
   },
   {
@@ -389,7 +441,9 @@
       "total_ip": 7532.6667,
       "lg_k_pct": 11.86,
       "lg_bb_pct": 7.58,
-      "lg_hr_pct": 2.11
+      "lg_hr_pct": 2.11,
+      "qual_avg_ip": 242.9,
+      "max_cg": 25
     },
     "pl": {
       "lg_avg": 0.2444,
@@ -402,7 +456,9 @@
       "total_ip": 8072.6667,
       "lg_k_pct": 13.73,
       "lg_bb_pct": 6.59,
-      "lg_hr_pct": 2.25
+      "lg_hr_pct": 2.25,
+      "qual_avg_ip": 257.7,
+      "max_cg": 24
     }
   },
   {
@@ -418,7 +474,9 @@
       "total_ip": 7581.3333,
       "lg_k_pct": 12.16,
       "lg_bb_pct": 7.3,
-      "lg_hr_pct": 2.33
+      "lg_hr_pct": 2.33,
+      "qual_avg_ip": 214.3,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2498,
@@ -431,7 +489,9 @@
       "total_ip": 8127.3333,
       "lg_k_pct": 12.9,
       "lg_bb_pct": 6.89,
-      "lg_hr_pct": 2.1
+      "lg_hr_pct": 2.1,
+      "qual_avg_ip": 234.3,
+      "max_cg": 25
     }
   },
   {
@@ -447,7 +507,9 @@
       "total_ip": 7555.3333,
       "lg_k_pct": 13.17,
       "lg_bb_pct": 6.9,
-      "lg_hr_pct": 1.87
+      "lg_hr_pct": 1.87,
+      "qual_avg_ip": 203.1,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2404,
@@ -460,7 +522,9 @@
       "total_ip": 7528.6667,
       "lg_k_pct": 13.75,
       "lg_bb_pct": 6.56,
-      "lg_hr_pct": 2.31
+      "lg_hr_pct": 2.31,
+      "qual_avg_ip": 203.6,
+      "max_cg": 26
     }
   },
   {
@@ -476,7 +540,9 @@
       "total_ip": 7160.3333,
       "lg_k_pct": 12.76,
       "lg_bb_pct": 6.59,
-      "lg_hr_pct": 2.05
+      "lg_hr_pct": 2.05,
+      "qual_avg_ip": 188.6,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2383,
@@ -489,7 +555,9 @@
       "total_ip": 7178.6667,
       "lg_k_pct": 13.91,
       "lg_bb_pct": 6.16,
-      "lg_hr_pct": 2.14
+      "lg_hr_pct": 2.14,
+      "qual_avg_ip": 224.5,
+      "max_cg": 23
     }
   },
   {
@@ -505,7 +573,9 @@
       "total_ip": 7217.6667,
       "lg_k_pct": 14.45,
       "lg_bb_pct": 6.65,
-      "lg_hr_pct": 2.5
+      "lg_hr_pct": 2.5,
+      "qual_avg_ip": 189.3,
+      "max_cg": 19
     },
     "pl": {
       "lg_avg": 0.2432,
@@ -518,7 +588,9 @@
       "total_ip": 7211.0,
       "lg_k_pct": 14.56,
       "lg_bb_pct": 6.3,
-      "lg_hr_pct": 2.16
+      "lg_hr_pct": 2.16,
+      "qual_avg_ip": 224.6,
+      "max_cg": 19
     }
   },
   {
@@ -534,7 +606,9 @@
       "total_ip": 7235.6667,
       "lg_k_pct": 16.2,
       "lg_bb_pct": 7.2,
-      "lg_hr_pct": 2.73
+      "lg_hr_pct": 2.73,
+      "qual_avg_ip": 208.2,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2445,
@@ -547,7 +621,9 @@
       "total_ip": 7273.6667,
       "lg_k_pct": 13.88,
       "lg_bb_pct": 7.25,
-      "lg_hr_pct": 2.48
+      "lg_hr_pct": 2.48,
+      "qual_avg_ip": 233.3,
+      "max_cg": 27
     }
   },
   {
@@ -563,7 +639,9 @@
       "total_ip": 7022.0,
       "lg_k_pct": 16.17,
       "lg_bb_pct": 6.9,
-      "lg_hr_pct": 2.75
+      "lg_hr_pct": 2.75,
+      "qual_avg_ip": 199.1,
+      "max_cg": 19
     },
     "pl": {
       "lg_avg": 0.2462,
@@ -576,7 +654,9 @@
       "total_ip": 6952.6667,
       "lg_k_pct": 13.15,
       "lg_bb_pct": 6.41,
-      "lg_hr_pct": 2.56
+      "lg_hr_pct": 2.56,
+      "qual_avg_ip": 201.4,
+      "max_cg": 28
     }
   },
   {
@@ -592,7 +672,9 @@
       "total_ip": 6974.6667,
       "lg_k_pct": 15.63,
       "lg_bb_pct": 6.69,
-      "lg_hr_pct": 2.28
+      "lg_hr_pct": 2.28,
+      "qual_avg_ip": 199.4,
+      "max_cg": 25
     },
     "pl": {
       "lg_avg": 0.2456,
@@ -605,7 +687,9 @@
       "total_ip": 6948.0,
       "lg_k_pct": 13.75,
       "lg_bb_pct": 7.41,
-      "lg_hr_pct": 2.85
+      "lg_hr_pct": 2.85,
+      "qual_avg_ip": 210.3,
+      "max_cg": 22
     }
   },
   {
@@ -621,7 +705,9 @@
       "total_ip": 6975.6667,
       "lg_k_pct": 14.19,
       "lg_bb_pct": 7.43,
-      "lg_hr_pct": 2.18
+      "lg_hr_pct": 2.18,
+      "qual_avg_ip": 183.7,
+      "max_cg": 16
     },
     "pl": {
       "lg_avg": 0.2528,
@@ -634,7 +720,9 @@
       "total_ip": 6967.3333,
       "lg_k_pct": 12.58,
       "lg_bb_pct": 7.31,
-      "lg_hr_pct": 3.12
+      "lg_hr_pct": 3.12,
+      "qual_avg_ip": 209.0,
+      "max_cg": 25
     }
   },
   {
@@ -650,7 +738,9 @@
       "total_ip": 6997.0,
       "lg_k_pct": 13.69,
       "lg_bb_pct": 7.99,
-      "lg_hr_pct": 2.66
+      "lg_hr_pct": 2.66,
+      "qual_avg_ip": 206.4,
+      "max_cg": 26
     },
     "pl": {
       "lg_avg": 0.2563,
@@ -663,7 +753,9 @@
       "total_ip": 6932.6667,
       "lg_k_pct": 11.94,
       "lg_bb_pct": 7.83,
-      "lg_hr_pct": 2.85
+      "lg_hr_pct": 2.85,
+      "qual_avg_ip": 197.1,
+      "max_cg": 18
     }
   },
   {
@@ -679,7 +771,9 @@
       "total_ip": 6978.0,
       "lg_k_pct": 14.01,
       "lg_bb_pct": 7.64,
-      "lg_hr_pct": 2.37
+      "lg_hr_pct": 2.37,
+      "qual_avg_ip": 198.1,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2543,
@@ -692,7 +786,9 @@
       "total_ip": 6946.6667,
       "lg_k_pct": 11.52,
       "lg_bb_pct": 8.21,
-      "lg_hr_pct": 2.62
+      "lg_hr_pct": 2.62,
+      "qual_avg_ip": 181.1,
+      "max_cg": 16
     }
   },
   {
@@ -708,7 +804,9 @@
       "total_ip": 6861.6667,
       "lg_k_pct": 13.83,
       "lg_bb_pct": 7.64,
-      "lg_hr_pct": 2.89
+      "lg_hr_pct": 2.89,
+      "qual_avg_ip": 208.0,
+      "max_cg": 21
     },
     "pl": {
       "lg_avg": 0.2468,
@@ -721,7 +819,9 @@
       "total_ip": 6857.6667,
       "lg_k_pct": 12.21,
       "lg_bb_pct": 8.37,
-      "lg_hr_pct": 2.38
+      "lg_hr_pct": 2.38,
+      "qual_avg_ip": 164.3,
+      "max_cg": 14
     }
   },
   {
@@ -737,7 +837,9 @@
       "total_ip": 6905.6667,
       "lg_k_pct": 13.33,
       "lg_bb_pct": 7.54,
-      "lg_hr_pct": 2.6
+      "lg_hr_pct": 2.6,
+      "qual_avg_ip": 183.2,
+      "max_cg": 17
     },
     "pl": {
       "lg_avg": 0.2543,
@@ -750,7 +852,9 @@
       "total_ip": 6930.0,
       "lg_k_pct": 10.62,
       "lg_bb_pct": 7.37,
-      "lg_hr_pct": 2.42
+      "lg_hr_pct": 2.42,
+      "qual_avg_ip": 185.4,
+      "max_cg": 25
     }
   },
   {
@@ -766,7 +870,9 @@
       "total_ip": 6840.0,
       "lg_k_pct": 13.62,
       "lg_bb_pct": 7.63,
-      "lg_hr_pct": 3.33
+      "lg_hr_pct": 3.33,
+      "qual_avg_ip": 193.8,
+      "max_cg": 18
     },
     "pl": {
       "lg_avg": 0.2558,
@@ -779,7 +885,9 @@
       "total_ip": 6874.3333,
       "lg_k_pct": 11.56,
       "lg_bb_pct": 6.77,
-      "lg_hr_pct": 2.31
+      "lg_hr_pct": 2.31,
+      "qual_avg_ip": 189.5,
+      "max_cg": 24
     }
   },
   {
@@ -795,7 +903,9 @@
       "total_ip": 6832.3333,
       "lg_k_pct": 13.78,
       "lg_bb_pct": 8.41,
-      "lg_hr_pct": 3.55
+      "lg_hr_pct": 3.55,
+      "qual_avg_ip": 179.1,
+      "max_cg": 14
     },
     "pl": {
       "lg_avg": 0.2549,
@@ -808,7 +918,9 @@
       "total_ip": 6874.0,
       "lg_k_pct": 12.28,
       "lg_bb_pct": 6.4,
-      "lg_hr_pct": 2.45
+      "lg_hr_pct": 2.45,
+      "qual_avg_ip": 193.3,
+      "max_cg": 24
     }
   },
   {
@@ -824,7 +936,9 @@
       "total_ip": 6853.0,
       "lg_k_pct": 13.36,
       "lg_bb_pct": 8.78,
-      "lg_hr_pct": 3.08
+      "lg_hr_pct": 3.08,
+      "qual_avg_ip": 180.5,
+      "max_cg": 12
     },
     "pl": {
       "lg_avg": 0.2649,
@@ -837,7 +951,9 @@
       "total_ip": 6887.6667,
       "lg_k_pct": 11.4,
       "lg_bb_pct": 6.49,
-      "lg_hr_pct": 2.51
+      "lg_hr_pct": 2.51,
+      "qual_avg_ip": 191.6,
+      "max_cg": 30
     }
   },
   {
@@ -853,7 +969,9 @@
       "total_ip": 6874.6667,
       "lg_k_pct": 15.58,
       "lg_bb_pct": 8.05,
-      "lg_hr_pct": 3.22
+      "lg_hr_pct": 3.22,
+      "qual_avg_ip": 176.3,
+      "max_cg": 17
     },
     "pl": {
       "lg_avg": 0.2737,
@@ -866,7 +984,9 @@
       "total_ip": 6841.6667,
       "lg_k_pct": 11.85,
       "lg_bb_pct": 7.32,
-      "lg_hr_pct": 3.18
+      "lg_hr_pct": 3.18,
+      "qual_avg_ip": 176.2,
+      "max_cg": 21
     }
   },
   {
@@ -882,7 +1002,9 @@
       "total_ip": 6895.0,
       "lg_k_pct": 14.63,
       "lg_bb_pct": 7.38,
-      "lg_hr_pct": 2.93
+      "lg_hr_pct": 2.93,
+      "qual_avg_ip": 193.5,
+      "max_cg": 21
     },
     "pl": {
       "lg_avg": 0.273,
@@ -895,7 +1017,9 @@
       "total_ip": 6874.0,
       "lg_k_pct": 12.1,
       "lg_bb_pct": 8.39,
-      "lg_hr_pct": 4.01
+      "lg_hr_pct": 4.01,
+      "qual_avg_ip": 177.2,
+      "max_cg": 19
     }
   },
   {
@@ -911,7 +1035,9 @@
       "total_ip": 6884.0,
       "lg_k_pct": 14.61,
       "lg_bb_pct": 7.08,
-      "lg_hr_pct": 2.78
+      "lg_hr_pct": 2.78,
+      "qual_avg_ip": 178.7,
+      "max_cg": 20
     },
     "pl": {
       "lg_avg": 0.2689,
@@ -924,7 +1050,9 @@
       "total_ip": 6846.6667,
       "lg_k_pct": 10.88,
       "lg_bb_pct": 8.06,
-      "lg_hr_pct": 2.77
+      "lg_hr_pct": 2.77,
+      "qual_avg_ip": 174.5,
+      "max_cg": 17
     }
   },
   {
@@ -940,7 +1068,9 @@
       "total_ip": 6899.6667,
       "lg_k_pct": 14.49,
       "lg_bb_pct": 7.08,
-      "lg_hr_pct": 2.6
+      "lg_hr_pct": 2.6,
+      "qual_avg_ip": 190.3,
+      "max_cg": 24
     },
     "pl": {
       "lg_avg": 0.2585,
@@ -953,7 +1083,9 @@
       "total_ip": 6857.0,
       "lg_k_pct": 11.91,
       "lg_bb_pct": 8.51,
-      "lg_hr_pct": 2.66
+      "lg_hr_pct": 2.66,
+      "qual_avg_ip": 180.1,
+      "max_cg": 20
     }
   },
   {
@@ -969,7 +1101,9 @@
       "total_ip": 6910.6667,
       "lg_k_pct": 13.54,
       "lg_bb_pct": 7.93,
-      "lg_hr_pct": 3.16
+      "lg_hr_pct": 3.16,
+      "qual_avg_ip": 185.2,
+      "max_cg": 16
     },
     "pl": {
       "lg_avg": 0.2697,
@@ -982,7 +1116,9 @@
       "total_ip": 6806.3333,
       "lg_k_pct": 11.08,
       "lg_bb_pct": 8.37,
-      "lg_hr_pct": 3.01
+      "lg_hr_pct": 3.01,
+      "qual_avg_ip": 180.5,
+      "max_cg": 23
     }
   },
   {
@@ -998,7 +1134,9 @@
       "total_ip": 6853.0,
       "lg_k_pct": 14.05,
       "lg_bb_pct": 8.39,
-      "lg_hr_pct": 3.09
+      "lg_hr_pct": 3.09,
+      "qual_avg_ip": 179.1,
+      "max_cg": 18
     },
     "pl": {
       "lg_avg": 0.2646,
@@ -1011,7 +1149,9 @@
       "total_ip": 6862.6667,
       "lg_k_pct": 11.55,
       "lg_bb_pct": 8.76,
-      "lg_hr_pct": 3.21
+      "lg_hr_pct": 3.21,
+      "qual_avg_ip": 181.2,
+      "max_cg": 20
     }
   },
   {
@@ -1027,7 +1167,9 @@
       "total_ip": 6911.6667,
       "lg_k_pct": 13.86,
       "lg_bb_pct": 8.96,
-      "lg_hr_pct": 3.16
+      "lg_hr_pct": 3.16,
+      "qual_avg_ip": 175.7,
+      "max_cg": 16
     },
     "pl": {
       "lg_avg": 0.2715,
@@ -1040,7 +1182,9 @@
       "total_ip": 6878.6667,
       "lg_k_pct": 12.17,
       "lg_bb_pct": 9.33,
-      "lg_hr_pct": 3.49
+      "lg_hr_pct": 3.49,
+      "qual_avg_ip": 174.4,
+      "max_cg": 23
     }
   },
   {
@@ -1056,7 +1200,9 @@
       "total_ip": 6905.6667,
       "lg_k_pct": 16.23,
       "lg_bb_pct": 6.6,
-      "lg_hr_pct": 2.8
+      "lg_hr_pct": 2.8,
+      "qual_avg_ip": 173.3,
+      "max_cg": 17
     },
     "pl": {
       "lg_avg": 0.2704,
@@ -1069,7 +1215,9 @@
       "total_ip": 6866.6667,
       "lg_k_pct": 14.42,
       "lg_bb_pct": 7.76,
-      "lg_hr_pct": 3.42
+      "lg_hr_pct": 3.42,
+      "qual_avg_ip": 166.0,
+      "max_cg": 15
     }
   },
   {
@@ -1085,7 +1233,9 @@
       "total_ip": 6870.6667,
       "lg_k_pct": 16.15,
       "lg_bb_pct": 6.85,
-      "lg_hr_pct": 3.05
+      "lg_hr_pct": 3.05,
+      "qual_avg_ip": 163.3,
+      "max_cg": 15
     },
     "pl": {
       "lg_avg": 0.2626,
@@ -1098,7 +1248,9 @@
       "total_ip": 6881.0,
       "lg_k_pct": 14.4,
       "lg_bb_pct": 7.62,
-      "lg_hr_pct": 2.76
+      "lg_hr_pct": 2.76,
+      "qual_avg_ip": 186.1,
+      "max_cg": 23
     }
   },
   {
@@ -1114,7 +1266,9 @@
       "total_ip": 6961.6667,
       "lg_k_pct": 15.74,
       "lg_bb_pct": 7.55,
-      "lg_hr_pct": 2.35
+      "lg_hr_pct": 2.35,
+      "qual_avg_ip": 172.2,
+      "max_cg": 14
     },
     "pl": {
       "lg_avg": 0.2601,
@@ -1127,7 +1281,9 @@
       "total_ip": 6886.3333,
       "lg_k_pct": 14.28,
       "lg_bb_pct": 8.33,
-      "lg_hr_pct": 2.77
+      "lg_hr_pct": 2.77,
+      "qual_avg_ip": 174.0,
+      "max_cg": 21
     }
   },
   {
@@ -1143,7 +1299,9 @@
       "total_ip": 6970.0,
       "lg_k_pct": 16.58,
       "lg_bb_pct": 7.75,
-      "lg_hr_pct": 2.41
+      "lg_hr_pct": 2.41,
+      "qual_avg_ip": 180.2,
+      "max_cg": 21
     },
     "pl": {
       "lg_avg": 0.2665,
@@ -1156,7 +1314,9 @@
       "total_ip": 6948.3333,
       "lg_k_pct": 14.55,
       "lg_bb_pct": 9.59,
-      "lg_hr_pct": 2.97
+      "lg_hr_pct": 2.97,
+      "qual_avg_ip": 169.1,
+      "max_cg": 21
     }
   },
   {
@@ -1172,7 +1332,9 @@
       "total_ip": 7039.0,
       "lg_k_pct": 16.81,
       "lg_bb_pct": 8.66,
-      "lg_hr_pct": 2.61
+      "lg_hr_pct": 2.61,
+      "qual_avg_ip": 166.9,
+      "max_cg": 19
     },
     "pl": {
       "lg_avg": 0.2641,
@@ -1185,7 +1347,9 @@
       "total_ip": 6938.6667,
       "lg_k_pct": 16.32,
       "lg_bb_pct": 9.34,
-      "lg_hr_pct": 3.01
+      "lg_hr_pct": 3.01,
+      "qual_avg_ip": 175.3,
+      "max_cg": 21
     }
   },
   {
@@ -1201,7 +1365,9 @@
       "total_ip": 7028.0,
       "lg_k_pct": 17.27,
       "lg_bb_pct": 8.71,
-      "lg_hr_pct": 2.39
+      "lg_hr_pct": 2.39,
+      "qual_avg_ip": 179.1,
+      "max_cg": 17
     },
     "pl": {
       "lg_avg": 0.2594,
@@ -1214,7 +1380,9 @@
       "total_ip": 6945.6667,
       "lg_k_pct": 14.87,
       "lg_bb_pct": 9.09,
-      "lg_hr_pct": 2.67
+      "lg_hr_pct": 2.67,
+      "qual_avg_ip": 168.6,
+      "max_cg": 22
     }
   },
   {
@@ -1230,7 +1398,9 @@
       "total_ip": 7058.6667,
       "lg_k_pct": 17.52,
       "lg_bb_pct": 8.92,
-      "lg_hr_pct": 2.41
+      "lg_hr_pct": 2.41,
+      "qual_avg_ip": 173.3,
+      "max_cg": 13
     },
     "pl": {
       "lg_avg": 0.2593,
@@ -1243,7 +1413,9 @@
       "total_ip": 6913.3333,
       "lg_k_pct": 16.23,
       "lg_bb_pct": 8.92,
-      "lg_hr_pct": 2.46
+      "lg_hr_pct": 2.46,
+      "qual_avg_ip": 169.1,
+      "max_cg": 17
     }
   },
   {
@@ -1259,7 +1431,9 @@
       "total_ip": 7050.6667,
       "lg_k_pct": 18.35,
       "lg_bb_pct": 8.97,
-      "lg_hr_pct": 2.44
+      "lg_hr_pct": 2.44,
+      "qual_avg_ip": 171.2,
+      "max_cg": 14
     },
     "pl": {
       "lg_avg": 0.2545,
@@ -1272,7 +1446,9 @@
       "total_ip": 6965.0,
       "lg_k_pct": 17.11,
       "lg_bb_pct": 9.08,
-      "lg_hr_pct": 2.24
+      "lg_hr_pct": 2.24,
+      "qual_avg_ip": 166.4,
+      "max_cg": 17
     }
   },
   {
@@ -1288,7 +1464,9 @@
       "total_ip": 7027.3333,
       "lg_k_pct": 16.64,
       "lg_bb_pct": 8.93,
-      "lg_hr_pct": 2.28
+      "lg_hr_pct": 2.28,
+      "qual_avg_ip": 164.6,
+      "max_cg": 14
     },
     "pl": {
       "lg_avg": 0.2709,
@@ -1301,7 +1479,9 @@
       "total_ip": 6922.6667,
       "lg_k_pct": 16.75,
       "lg_bb_pct": 9.07,
-      "lg_hr_pct": 2.39
+      "lg_hr_pct": 2.39,
+      "qual_avg_ip": 158.1,
+      "max_cg": 16
     }
   },
   {
@@ -1317,7 +1497,9 @@
       "total_ip": 6947.3333,
       "lg_k_pct": 17.56,
       "lg_bb_pct": 9.28,
-      "lg_hr_pct": 2.67
+      "lg_hr_pct": 2.67,
+      "qual_avg_ip": 168.6,
+      "max_cg": 16
     },
     "pl": {
       "lg_avg": 0.2484,
@@ -1330,7 +1512,9 @@
       "total_ip": 7009.6667,
       "lg_k_pct": 17.89,
       "lg_bb_pct": 8.84,
-      "lg_hr_pct": 2.12
+      "lg_hr_pct": 2.12,
+      "qual_avg_ip": 171.8,
+      "max_cg": 15
     }
   },
   {
@@ -1346,7 +1530,9 @@
       "total_ip": 6997.3333,
       "lg_k_pct": 17.19,
       "lg_bb_pct": 8.84,
-      "lg_hr_pct": 2.53
+      "lg_hr_pct": 2.53,
+      "qual_avg_ip": 164.3,
+      "max_cg": 12
     },
     "pl": {
       "lg_avg": 0.2582,
@@ -1359,7 +1545,9 @@
       "total_ip": 7007.6667,
       "lg_k_pct": 16.9,
       "lg_bb_pct": 8.73,
-      "lg_hr_pct": 2.42
+      "lg_hr_pct": 2.42,
+      "qual_avg_ip": 167.4,
+      "max_cg": 13
     }
   },
   {
@@ -1375,7 +1563,9 @@
       "total_ip": 7297.0,
       "lg_k_pct": 17.06,
       "lg_bb_pct": 9.01,
-      "lg_hr_pct": 2.48
+      "lg_hr_pct": 2.48,
+      "qual_avg_ip": 157.2,
+      "max_cg": 8
     },
     "pl": {
       "lg_avg": 0.2663,
@@ -1388,7 +1578,9 @@
       "total_ip": 7245.0,
       "lg_k_pct": 15.72,
       "lg_bb_pct": 9.09,
-      "lg_hr_pct": 2.14
+      "lg_hr_pct": 2.14,
+      "qual_avg_ip": 173.5,
+      "max_cg": 13
     }
   },
   {
@@ -1404,7 +1596,9 @@
       "total_ip": 7258.3333,
       "lg_k_pct": 16.83,
       "lg_bb_pct": 8.72,
-      "lg_hr_pct": 2.13
+      "lg_hr_pct": 2.13,
+      "qual_avg_ip": 167.5,
+      "max_cg": 9
     },
     "pl": {
       "lg_avg": 0.2651,
@@ -1417,7 +1611,9 @@
       "total_ip": 7210.6667,
       "lg_k_pct": 14.94,
       "lg_bb_pct": 9.49,
-      "lg_hr_pct": 2.35
+      "lg_hr_pct": 2.35,
+      "qual_avg_ip": 164.2,
+      "max_cg": 10
     }
   },
   {
@@ -1433,7 +1629,9 @@
       "total_ip": 7191.0,
       "lg_k_pct": 16.77,
       "lg_bb_pct": 8.28,
-      "lg_hr_pct": 2.69
+      "lg_hr_pct": 2.69,
+      "qual_avg_ip": 171.3,
+      "max_cg": 13
     },
     "pl": {
       "lg_avg": 0.2587,
@@ -1446,7 +1644,9 @@
       "total_ip": 7235.6667,
       "lg_k_pct": 16.11,
       "lg_bb_pct": 9.29,
-      "lg_hr_pct": 2.37
+      "lg_hr_pct": 2.37,
+      "qual_avg_ip": 169.8,
+      "max_cg": 9
     }
   },
   {
@@ -1462,7 +1662,9 @@
       "total_ip": 7281.6667,
       "lg_k_pct": 17.98,
       "lg_bb_pct": 7.79,
-      "lg_hr_pct": 2.64
+      "lg_hr_pct": 2.64,
+      "qual_avg_ip": 155.4,
+      "max_cg": 7
     },
     "pl": {
       "lg_avg": 0.2637,
@@ -1475,7 +1677,9 @@
       "total_ip": 7191.6667,
       "lg_k_pct": 15.58,
       "lg_bb_pct": 10.06,
-      "lg_hr_pct": 2.39
+      "lg_hr_pct": 2.39,
+      "qual_avg_ip": 151.0,
+      "max_cg": 8
     }
   },
   {
@@ -1491,7 +1695,9 @@
       "total_ip": 7477.0,
       "lg_k_pct": 17.29,
       "lg_bb_pct": 8.7,
-      "lg_hr_pct": 2.44
+      "lg_hr_pct": 2.44,
+      "qual_avg_ip": 165.1,
+      "max_cg": 13
     },
     "pl": {
       "lg_avg": 0.2643,
@@ -1504,7 +1710,9 @@
       "total_ip": 7500.6667,
       "lg_k_pct": 16.36,
       "lg_bb_pct": 9.61,
-      "lg_hr_pct": 3.12
+      "lg_hr_pct": 3.12,
+      "qual_avg_ip": 166.1,
+      "max_cg": 12
     }
   },
   {
@@ -1520,7 +1728,9 @@
       "total_ip": 7571.0,
       "lg_k_pct": 19.24,
       "lg_bb_pct": 6.52,
-      "lg_hr_pct": 2.6
+      "lg_hr_pct": 2.6,
+      "qual_avg_ip": 182.7,
+      "max_cg": 8
     },
     "pl": {
       "lg_avg": 0.2554,
@@ -1533,7 +1743,9 @@
       "total_ip": 7472.6667,
       "lg_k_pct": 18.25,
       "lg_bb_pct": 7.19,
-      "lg_hr_pct": 2.75
+      "lg_hr_pct": 2.75,
+      "qual_avg_ip": 163.9,
+      "max_cg": 7
     }
   },
   {
@@ -1549,7 +1761,9 @@
       "total_ip": 7464.3333,
       "lg_k_pct": 18.8,
       "lg_bb_pct": 6.81,
-      "lg_hr_pct": 3.09
+      "lg_hr_pct": 3.09,
+      "qual_avg_ip": 170.4,
+      "max_cg": 11
     },
     "pl": {
       "lg_avg": 0.2764,
@@ -1562,7 +1776,9 @@
       "total_ip": 7504.0,
       "lg_k_pct": 17.03,
       "lg_bb_pct": 8.67,
-      "lg_hr_pct": 3.05
+      "lg_hr_pct": 3.05,
+      "qual_avg_ip": 177.4,
+      "max_cg": 11
     }
   },
   {
@@ -1578,7 +1794,9 @@
       "total_ip": 7382.0,
       "lg_k_pct": 19.5,
       "lg_bb_pct": 7.36,
-      "lg_hr_pct": 3.35
+      "lg_hr_pct": 3.35,
+      "qual_avg_ip": 158.8,
+      "max_cg": 7
     },
     "pl": {
       "lg_avg": 0.2776,
@@ -1591,7 +1809,9 @@
       "total_ip": 7161.0,
       "lg_k_pct": 16.57,
       "lg_bb_pct": 9.02,
-      "lg_hr_pct": 2.91
+      "lg_hr_pct": 2.91,
+      "qual_avg_ip": 155.7,
+      "max_cg": 10
     }
   },
   {
@@ -1607,7 +1827,9 @@
       "total_ip": 7823.0,
       "lg_k_pct": 19.05,
       "lg_bb_pct": 7.54,
-      "lg_hr_pct": 2.79
+      "lg_hr_pct": 2.79,
+      "qual_avg_ip": 174.9,
+      "max_cg": 11
     },
     "pl": {
       "lg_avg": 0.267,
@@ -1620,7 +1842,9 @@
       "total_ip": 7281.6667,
       "lg_k_pct": 17.04,
       "lg_bb_pct": 7.41,
-      "lg_hr_pct": 2.59
+      "lg_hr_pct": 2.59,
+      "qual_avg_ip": 172.5,
+      "max_cg": 15
     }
   },
   {
@@ -1636,7 +1860,9 @@
       "total_ip": 7774.6667,
       "lg_k_pct": 18.64,
       "lg_bb_pct": 6.85,
-      "lg_hr_pct": 2.4
+      "lg_hr_pct": 2.4,
+      "qual_avg_ip": 174.9,
+      "max_cg": 9
     },
     "pl": {
       "lg_avg": 0.2611,
@@ -1649,7 +1875,9 @@
       "total_ip": 7292.0,
       "lg_k_pct": 17.32,
       "lg_bb_pct": 7.34,
-      "lg_hr_pct": 2.14
+      "lg_hr_pct": 2.14,
+      "qual_avg_ip": 164.4,
+      "max_cg": 13
     }
   },
   {
@@ -1665,7 +1893,9 @@
       "total_ip": 7659.3333,
       "lg_k_pct": 18.09,
       "lg_bb_pct": 7.59,
-      "lg_hr_pct": 2.45
+      "lg_hr_pct": 2.45,
+      "qual_avg_ip": 175.3,
+      "max_cg": 7
     },
     "pl": {
       "lg_avg": 0.2621,
@@ -1678,7 +1908,9 @@
       "total_ip": 7702.3333,
       "lg_k_pct": 17.36,
       "lg_bb_pct": 6.9,
-      "lg_hr_pct": 2.01
+      "lg_hr_pct": 2.01,
+      "qual_avg_ip": 171.6,
+      "max_cg": 12
     }
   },
   {
@@ -1694,7 +1926,9 @@
       "total_ip": 7647.3333,
       "lg_k_pct": 17.61,
       "lg_bb_pct": 7.07,
-      "lg_hr_pct": 2.28
+      "lg_hr_pct": 2.28,
+      "qual_avg_ip": 170.8,
+      "max_cg": 4
     },
     "pl": {
       "lg_avg": 0.2655,
@@ -1707,7 +1941,9 @@
       "total_ip": 7709.3333,
       "lg_k_pct": 17.63,
       "lg_bb_pct": 7.31,
-      "lg_hr_pct": 2.23
+      "lg_hr_pct": 2.23,
+      "qual_avg_ip": 168.9,
+      "max_cg": 10
     }
   },
   {
@@ -1723,7 +1959,9 @@
       "total_ip": 7698.3333,
       "lg_k_pct": 17.94,
       "lg_bb_pct": 7.13,
-      "lg_hr_pct": 2.3
+      "lg_hr_pct": 2.3,
+      "qual_avg_ip": 171.9,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2665,
@@ -1736,7 +1974,9 @@
       "total_ip": 7737.0,
       "lg_k_pct": 18.16,
       "lg_bb_pct": 8.04,
-      "lg_hr_pct": 2.37
+      "lg_hr_pct": 2.37,
+      "qual_avg_ip": 167.2,
+      "max_cg": 11
     }
   },
   {
@@ -1752,7 +1992,9 @@
       "total_ip": 7681.3333,
       "lg_k_pct": 17.35,
       "lg_bb_pct": 7.62,
-      "lg_hr_pct": 2.69
+      "lg_hr_pct": 2.69,
+      "qual_avg_ip": 170.6,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2704,
@@ -1765,7 +2007,9 @@
       "total_ip": 7706.3333,
       "lg_k_pct": 18.53,
       "lg_bb_pct": 7.78,
-      "lg_hr_pct": 2.15
+      "lg_hr_pct": 2.15,
+      "qual_avg_ip": 175.4,
+      "max_cg": 10
     }
   },
   {
@@ -1781,7 +2025,9 @@
       "total_ip": 7626.3333,
       "lg_k_pct": 18.42,
       "lg_bb_pct": 7.19,
-      "lg_hr_pct": 1.59
+      "lg_hr_pct": 1.59,
+      "qual_avg_ip": 180.3,
+      "max_cg": 7
     },
     "pl": {
       "lg_avg": 0.251,
@@ -1794,7 +2040,9 @@
       "total_ip": 7664.3333,
       "lg_k_pct": 17.9,
       "lg_bb_pct": 6.26,
-      "lg_hr_pct": 1.37
+      "lg_hr_pct": 1.37,
+      "qual_avg_ip": 175.5,
+      "max_cg": 14
     }
   },
   {
@@ -1810,7 +2058,9 @@
       "total_ip": 7643.3333,
       "lg_k_pct": 17.46,
       "lg_bb_pct": 7.58,
-      "lg_hr_pct": 1.41
+      "lg_hr_pct": 1.41,
+      "qual_avg_ip": 167.4,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2516,
@@ -1823,7 +2073,9 @@
       "total_ip": 7658.3333,
       "lg_k_pct": 16.32,
       "lg_bb_pct": 7.08,
-      "lg_hr_pct": 1.35
+      "lg_hr_pct": 1.35,
+      "qual_avg_ip": 172.3,
+      "max_cg": 8
     }
   },
   {
@@ -1839,7 +2091,9 @@
       "total_ip": 7750.0,
       "lg_k_pct": 17.69,
       "lg_bb_pct": 8.46,
-      "lg_hr_pct": 2.25
+      "lg_hr_pct": 2.25,
+      "qual_avg_ip": 164.3,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2621,
@@ -1852,7 +2106,9 @@
       "total_ip": 7709.6667,
       "lg_k_pct": 17.37,
       "lg_bb_pct": 8.28,
-      "lg_hr_pct": 1.72
+      "lg_hr_pct": 1.72,
+      "qual_avg_ip": 172.4,
+      "max_cg": 10
     }
   },
   {
@@ -1868,7 +2124,9 @@
       "total_ip": 7737.6667,
       "lg_k_pct": 17.94,
       "lg_bb_pct": 8.03,
-      "lg_hr_pct": 2.25
+      "lg_hr_pct": 2.25,
+      "qual_avg_ip": 165.2,
+      "max_cg": 3
     },
     "pl": {
       "lg_avg": 0.2573,
@@ -1881,7 +2139,9 @@
       "total_ip": 7721.6667,
       "lg_k_pct": 18.2,
       "lg_bb_pct": 8.5,
-      "lg_hr_pct": 1.86
+      "lg_hr_pct": 1.86,
+      "qual_avg_ip": 165.3,
+      "max_cg": 9
     }
   },
   {
@@ -1897,7 +2157,9 @@
       "total_ip": 7649.0,
       "lg_k_pct": 18.59,
       "lg_bb_pct": 7.95,
-      "lg_hr_pct": 1.81
+      "lg_hr_pct": 1.81,
+      "qual_avg_ip": 175.0,
+      "max_cg": 7
     },
     "pl": {
       "lg_avg": 0.2557,
@@ -1910,7 +2172,9 @@
       "total_ip": 7656.6667,
       "lg_k_pct": 18.06,
       "lg_bb_pct": 8.41,
-      "lg_hr_pct": 1.94
+      "lg_hr_pct": 1.94,
+      "qual_avg_ip": 164.2,
+      "max_cg": 5
     }
   },
   {
@@ -1926,7 +2190,9 @@
       "total_ip": 7657.0,
       "lg_k_pct": 18.67,
       "lg_bb_pct": 8.18,
-      "lg_hr_pct": 2.22
+      "lg_hr_pct": 2.22,
+      "qual_avg_ip": 162.7,
+      "max_cg": 5
     },
     "pl": {
       "lg_avg": 0.2594,
@@ -1939,7 +2205,9 @@
       "total_ip": 7683.0,
       "lg_k_pct": 18.14,
       "lg_bb_pct": 8.47,
-      "lg_hr_pct": 1.88
+      "lg_hr_pct": 1.88,
+      "qual_avg_ip": 166.0,
+      "max_cg": 5
     }
   },
   {
@@ -1955,7 +2223,9 @@
       "total_ip": 7680.3333,
       "lg_k_pct": 19.68,
       "lg_bb_pct": 8.29,
-      "lg_hr_pct": 2.18
+      "lg_hr_pct": 2.18,
+      "qual_avg_ip": 158.6,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2502,
@@ -1968,7 +2238,9 @@
       "total_ip": 7633.3333,
       "lg_k_pct": 19.3,
       "lg_bb_pct": 8.12,
-      "lg_hr_pct": 2.44
+      "lg_hr_pct": 2.44,
+      "qual_avg_ip": 163.5,
+      "max_cg": 8
     }
   },
   {
@@ -1984,7 +2256,9 @@
       "total_ip": 7643.0,
       "lg_k_pct": 19.31,
       "lg_bb_pct": 8.86,
-      "lg_hr_pct": 2.57
+      "lg_hr_pct": 2.57,
+      "qual_avg_ip": 169.2,
+      "max_cg": 10
     },
     "pl": {
       "lg_avg": 0.2538,
@@ -1997,7 +2271,9 @@
       "total_ip": 7689.3333,
       "lg_k_pct": 18.6,
       "lg_bb_pct": 8.48,
-      "lg_hr_pct": 2.54
+      "lg_hr_pct": 2.54,
+      "qual_avg_ip": 162.4,
+      "max_cg": 5
     }
   },
   {
@@ -2013,7 +2289,9 @@
       "total_ip": 7662.3333,
       "lg_k_pct": 20.31,
       "lg_bb_pct": 8.66,
-      "lg_hr_pct": 2.59
+      "lg_hr_pct": 2.59,
+      "qual_avg_ip": 166.0,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2516,
@@ -2026,7 +2304,9 @@
       "total_ip": 7674.0,
       "lg_k_pct": 19.44,
       "lg_bb_pct": 8.85,
-      "lg_hr_pct": 2.56
+      "lg_hr_pct": 2.56,
+      "qual_avg_ip": 157.4,
+      "max_cg": 2
     }
   },
   {
@@ -2042,7 +2322,9 @@
       "total_ip": 6347.0,
       "lg_k_pct": 20.04,
       "lg_bb_pct": 8.59,
-      "lg_hr_pct": 2.49
+      "lg_hr_pct": 2.49,
+      "qual_avg_ip": 134.6,
+      "max_cg": 10
     },
     "pl": {
       "lg_avg": 0.2461,
@@ -2055,7 +2337,9 @@
       "total_ip": 6335.0,
       "lg_k_pct": 19.82,
       "lg_bb_pct": 9.58,
-      "lg_hr_pct": 2.27
+      "lg_hr_pct": 2.27,
+      "qual_avg_ip": 126.2,
+      "max_cg": 3
     }
   },
   {
@@ -2071,7 +2355,9 @@
       "total_ip": 7515.0,
       "lg_k_pct": 19.81,
       "lg_bb_pct": 7.98,
-      "lg_hr_pct": 2.34
+      "lg_hr_pct": 2.34,
+      "qual_avg_ip": 152.1,
+      "max_cg": 2
     },
     "pl": {
       "lg_avg": 0.2412,
@@ -2084,7 +2370,9 @@
       "total_ip": 7539.6667,
       "lg_k_pct": 19.92,
       "lg_bb_pct": 8.67,
-      "lg_hr_pct": 2.22
+      "lg_hr_pct": 2.22,
+      "qual_avg_ip": 155.3,
+      "max_cg": 6
     }
   },
   {
@@ -2100,7 +2388,9 @@
       "total_ip": 7676.0,
       "lg_k_pct": 19.03,
       "lg_bb_pct": 7.15,
-      "lg_hr_pct": 2.14
+      "lg_hr_pct": 2.14,
+      "qual_avg_ip": 156.2,
+      "max_cg": 4
     },
     "pl": {
       "lg_avg": 0.2399,
@@ -2113,7 +2403,9 @@
       "total_ip": 7653.0,
       "lg_k_pct": 20.09,
       "lg_bb_pct": 7.93,
-      "lg_hr_pct": 1.93
+      "lg_hr_pct": 1.93,
+      "qual_avg_ip": 158.1,
+      "max_cg": 4
     }
   },
   {
@@ -2129,7 +2421,9 @@
       "total_ip": 7683.6667,
       "lg_k_pct": 19.51,
       "lg_bb_pct": 7.21,
-      "lg_hr_pct": 2.08
+      "lg_hr_pct": 2.08,
+      "qual_avg_ip": 155.8,
+      "max_cg": 4
     },
     "pl": {
       "lg_avg": 0.2408,
@@ -2142,7 +2436,9 @@
       "total_ip": 7660.0,
       "lg_k_pct": 19.31,
       "lg_bb_pct": 8.05,
-      "lg_hr_pct": 1.83
+      "lg_hr_pct": 1.83,
+      "qual_avg_ip": 157.3,
+      "max_cg": 4
     }
   },
   {
@@ -2158,7 +2454,9 @@
       "total_ip": 7685.3333,
       "lg_k_pct": 18.51,
       "lg_bb_pct": 6.97,
-      "lg_hr_pct": 1.44
+      "lg_hr_pct": 1.44,
+      "qual_avg_ip": 156.7,
+      "max_cg": 4
     },
     "pl": {
       "lg_avg": 0.2409,
@@ -2171,7 +2469,9 @@
       "total_ip": 7692.0,
       "lg_k_pct": 19.05,
       "lg_bb_pct": 7.32,
-      "lg_hr_pct": 1.61
+      "lg_hr_pct": 1.61,
+      "qual_avg_ip": 163.2,
+      "max_cg": 5
     }
   },
   {
@@ -2187,7 +2487,9 @@
       "total_ip": 7694.0,
       "lg_k_pct": 19.29,
       "lg_bb_pct": 7.02,
-      "lg_hr_pct": 1.67
+      "lg_hr_pct": 1.67,
+      "qual_avg_ip": 159.6,
+      "max_cg": 6
     },
     "pl": {
       "lg_avg": 0.2463,
@@ -2200,7 +2502,9 @@
       "total_ip": 7698.3333,
       "lg_k_pct": 19.58,
       "lg_bb_pct": 7.18,
-      "lg_hr_pct": 1.75
+      "lg_hr_pct": 1.75,
+      "qual_avg_ip": 159.3,
+      "max_cg": 6
     }
   }
 ]

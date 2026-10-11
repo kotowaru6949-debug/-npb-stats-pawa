@@ -111,10 +111,23 @@ def eval_pitcher_pawa(stats: Dict[str, Any], lg: Dict[str, float]) -> Dict[str, 
     stuff_score = 30.0 + (k_pct_plus * 0.32) - ((hr_pct_minus - 100.0) * 0.12)
     stuff = int(min(max(round(stuff_score), 15), 99))
 
-    # 3. スタミナ (1〜99)
-    # 投球回数と完投数から算出
-    # 200回・完投多数で90+(S), 180回で83+(A), 150回で74+(B), 130回で65+(C)
-    stam_score = 30.0 + (ip * 0.28) + (cg * 2.5)
+    # 3. スタミナ (1〜99) : 時代補正イニング比率と完投力で査定
+    # その時代の規定到達者平均投球回 (qual_avg_ip) および 最多完投数 (max_cg) を基準に相対化
+    qual_avg_ip = lg.get("qual_avg_ip", 160.0) if lg else 160.0
+    max_cg = max(lg.get("max_cg", 5), 1) if lg else 5
+    gs = stats.get("gs", 0)
+
+    # 先発としてのスタミナスコア (規定平均イニングで約75点/B、最多イニング・完投多数で90点超/S)
+    ip_ratio = ip / max(qual_avg_ip, 1.0)
+    cg_bonus = min((cg / max(max_cg, 1)) * 10.0, 10.0)
+    starter_score = 40.0 + (ip_ratio * 40.0) + cg_bonus
+
+    # 救援としてのスタミナスコア (登板回数・マルチイニングに応じた適正値 35〜55点/E〜D)
+    reliever_score = min(30.0 + (ip * 0.28), 60.0)
+
+    # 先発登板数に応じた重み付け (gs<=2:純救援, gs>=10:本格先発)
+    starter_weight = min(max((gs - 2) / 8.0, 0.0), 1.0)
+    stam_score = starter_score * starter_weight + reliever_score * (1.0 - starter_weight)
     stamina = int(min(max(round(stam_score), 25), 99))
 
     return {
