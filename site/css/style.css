@@ -894,4 +894,371 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
   border-bottom: 1px solid var(--border);
 }
 
+/* =========================================
+   横スクロール時の「選手名」列の左端固定 (Sticky Column)
+========================================= */
+#battersTable th:nth-child(3),
+#pitchersTable th:nth-child(3),
+#rosterBattersTable th:nth-child(3),
+#rosterPitchersTable th:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  background: #192233;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+}
+
+#battersTable tbody td:nth-child(3),
+#pitchersTable tbody td:nth-child(3),
+#rosterBattersTable tbody tr:not(.roster-divider-row) td:nth-child(3),
+#rosterPitchersTable tbody tr:not(.roster-divider-row) td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 6;
+  background: var(--bg-secondary);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================
+   スマートフォン・タブレット向けレスポンシブ対応
+========================================= */
+@media (max-width: 768px) {
+  /* ヘッダーの省スペース化 */
+  .header {
+    padding: 0.65rem 0.75rem 0;
+  }
+
+  .header-inner {
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .logo {
+    gap: 0.5rem;
+  }
+
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+
+  .logo h1 {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  .header-actions .btn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  /* ナビゲーションタブを横1列スワイプ対応に */
+  .tabs-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0.15rem;
+    scrollbar-width: none;
+    margin: 0 -0.75rem;
+    padding: 0 0.75rem;
+  }
+
+  .tabs-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    padding: 0.55rem 0.7rem;
+  }
+
+  /* メイン領域の余白圧縮 */
+  .main-content {
+    padding: 0.65rem 0.5rem;
+  }
+
+  /* フィルターパネルをコンパクトな2列グリッドに */
+  .filter-panel {
+    padding: 0.65rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .filter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .filter-row > .filter-group:first-child,
+  .filter-row > .search-group {
+    grid-column: 1 / -1;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    min-width: 0;
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.82rem;
+  }
+
+  .year-stepper-group {
+    width: 100%;
+  }
+
+  .year-stepper-group select {
+    flex: 1;
+  }
+
+  .year-step-inline-btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  /* 凡例・件数表示の省スペース化 */
+  .table-meta {
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .count-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.55rem;
+  }
+
+  .legend {
+    font-size: 0.68rem;
+    gap: 0.35rem;
+  }
+
+  /* テーブルのスマホ最適化 */
+  .table-container {
+    max-height: calc(100vh - 210px);
+    min-height: 320px;
+    border-radius: 8px;
+  }
+
+  table {
+    font-size: 0.75rem;
+  }
+
+  th {
+    padding: 0.45rem 0.35rem;
+    font-size: 0.72rem;
+  }
+
+  td {
+    padding: 0.38rem 0.35rem;
+  }
+
+  /* 選手名セルの横幅をコンパクト化して右側の成績列を見やすく */
+  .player-name::after {
+    content: none;
+  }
+
+  .player-name small {
+    font-size: 0.65rem;
+    color: #94a3b8;
+  }
+
+  .tag-sub {
+    font-size: 0.58rem;
+    padding: 0.02rem 0.2rem;
+    margin-left: 0.15rem;
+  }
+
+  .pawa-cell {
+    font-size: 0.74rem;
+    gap: 0.15rem;
+  }
+
+  .badge {
+    width: 15px;
+    height: 15px;
+    font-size: 0.62rem;
+  }
+
+  /* 🏟️ 球団・年度別メンバー表のスマホ最適化 */
+  .roster-header-card {
+    position: static; /* スマホでは画面を塞がないよう固定解除 */
+    padding: 0.65rem 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .roster-nav-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .roster-year-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .roster-stepper-box {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .roster-step-btn {
+    flex: 1;
+    padding: 0.42rem 0.5rem;
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  .roster-year-select {
+    width: 115px;
+    font-size: 0.88rem;
+  }
+
+  .roster-title-heading {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+
+  .roster-summary-badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+  }
+
+  .roster-stat-pill {
+    font-size: 0.7rem;
+    padding: 0.22rem 0.4rem;
+    text-align: center;
+  }
+
+  .roster-summary-badges .roster-stat-pill:first-child {
+    grid-column: 1 / -1;
+  }
+
+  /* セ・パ球団ピルを1行6球団でスマホ幅に綺麗に収める */
+  .roster-team-pills {
+    gap: 0.35rem;
+    padding-top: 0.5rem;
+  }
+
+  .roster-league-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .roster-league-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .roster-league-label {
+    min-width: 28px;
+    padding: 0.2rem 0.3rem;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .team-pill-btn {
+    flex: 1 0 auto;
+    padding: 0.28rem 0.42rem;
+    font-size: 0.73rem;
+    text-align: center;
+  }
+
+  .roster-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .roster-section-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .roster-sort-group {
+    width: 100%;
+  }
+
+  .roster-sort-group select {
+    flex: 1;
+    font-size: 0.78rem;
+  }
+
+  /* 散布図・選手比較・モーダルのスマホ対応 */
+  .chart-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .chart-controls select {
+    width: 100%;
+    font-size: 0.82rem;
+    padding: 0.45rem;
+  }
+
+  .chart-wrapper {
+    height: 360px;
+    padding: 0.65rem;
+  }
+
+  .compare-selector {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .compare-vs {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: -0.25rem 0;
+  }
+
+  .compare-chart-wrapper {
+    height: 320px;
+    padding: 0.75rem;
+  }
+
+  .modal-overlay {
+    padding: 0.4rem;
+  }
+
+  .modal-content {
+    max-height: 94vh;
+    border-radius: 10px;
+  }
+
+  .modal-header {
+    padding: 0.8rem 1rem;
+  }
+
+  .modal-title-area h2 {
+    font-size: 1.15rem;
+  }
+
+  .modal-body {
+    padding: 0.75rem;
+  }
+
+  .modal-chart-wrapper {
+    height: 220px;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
+
+
 

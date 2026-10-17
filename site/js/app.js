@@ -177,8 +177,12 @@ function setupTabs() {
       currentTab = btn.dataset.tab;
       document.getElementById(currentTab).classList.add("active");
 
-      // 守備位置フィルターの表示/非表示
+      // 共通フィルターパネル＆守備位置フィルターの表示/非表示
+      const filterPanel = document.querySelector(".filter-panel");
       const posFilterGroup = document.getElementById("posFilterGroup");
+      if (filterPanel) {
+        filterPanel.style.display = (currentTab === "teamRosterTab" || currentTab === "compareTab") ? "none" : "block";
+      }
       if (currentTab === "battersTab") {
         posFilterGroup.style.display = "flex";
         sortKey = "ops_plus";
