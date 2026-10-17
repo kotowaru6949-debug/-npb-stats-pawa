@@ -17,27 +17,69 @@ from scraper import scrape_year_data
 from metrics import safe_int, safe_float, parse_ip
 from pawa_eval import eval_batter_pawa, eval_pitcher_pawa
 
-TEAM_MAP = {
-    "giants": ("巨人", "セ"), "tigers": ("阪神", "セ"), "dragons": ("中日", "セ"),
-    "swallows": ("ヤクルト", "セ"), "carp": ("広島", "セ"), "baystars": ("DeNA", "セ"),
-    "whales": ("大洋", "セ"), "taiyo": ("大洋", "セ"), "kokutetsu": ("国鉄", "セ"),
-    "sankei": ("サンケイ", "セ"), "robins": ("松竹", "セ"), "pirates": ("西日本", "セ"),
-    "hawks": ("ソフトバンク", "パ"), "daiei": ("ダイエー", "パ"), "nankai": ("南海", "パ"),
-    "lions": ("西武", "パ"), "nishitetsu": ("西鉄", "パ"), "taiheiyo": ("太平洋", "パ"), "crown": ("クラウン", "パ"),
-    "fighters": ("日本ハム", "パ"), "toei": ("東映", "パ"), "tokyu": ("東急", "パ"), "flyers": ("東急/東映", "パ"),
-    "marines": ("ロッテ", "パ"), "orions": ("ロッテ/毎日", "パ"), "mainichi": ("毎日", "パ"), "daimai": ("大毎", "パ"), "tokyo": ("東京", "パ"),
-    "buffaloes": ("オリックス", "パ"), "braves": ("阪急", "パ"), "hankyu": ("阪急", "パ"), "kintetsu": ("近鉄", "パ"), "pearls": ("近鉄", "パ"), "bluebirds": ("近鉄", "パ"),
-    "eagles": ("楽天", "パ"), "stars": ("大映", "パ"), "tombow": ("トンボ/高橋", "パ"), "takahashi": ("トンボ/高橋", "パ"), "clippers": ("西鉄", "パ")
-}
-
 def normalize_name(s):
     return re.sub(r'[\s\u3000]+', '', s)
 
 def resolve_team(rel_url):
-    clean = rel_url.lower()
-    for k, (t_name, lg) in TEAM_MAP.items():
-        if f"/{k}.html" in clean or f"_{k}.html" in clean:
-            return t_name, lg
+    clean = rel_url.lower().strip().lstrip('/')
+    m = re.search(r'([0-9]{4})[/_\-]([a-z0-9_\-]+)\.html', clean)
+    year = int(m.group(1)) if m else 2025
+    slug = m.group(2) if m else clean
+
+    if slug == "giants": return "巨人", "セ"
+    if slug == "tigers": return "阪神", "セ"
+    if slug == "dragons": return "中日", "セ"
+    if slug == "carp": return "広島", "セ"
+    if slug == "baystars": return ("横浜" if year <= 2011 else "DeNA"), "セ"
+    if slug in ("whales", "taiyo"): return "大洋", "セ"
+    if slug == "robins": return ("松竹" if year <= 1952 else "洋松"), "セ"
+    if slug == "pirates": return "西日本", "セ"
+    if slug == "swallows":
+        if year <= 1964: return "国鉄", "セ"
+        if year == 1965: return "サンケイ", "セ"
+        return "ヤクルト", "セ"
+    if slug == "atoms":
+        if year <= 1968: return "サンケイ", "セ"
+        if year == 1969: return "アトムズ", "セ"
+        return "ヤクルト", "セ"
+
+    if slug == "hawks":
+        if year <= 1988: return "南海", "パ"
+        if year <= 2004: return "ダイエー", "パ"
+        return "ソフトバンク", "パ"
+    if slug == "clippers": return "西鉄", "パ"
+    if slug == "lions":
+        if year <= 1972: return "西鉄", "パ"
+        if year <= 1976: return "太平洋", "パ"
+        if year <= 1978: return "クラウン", "パ"
+        return "西武", "パ"
+    if slug == "flyers":
+        if year <= 1953: return "東急", "パ"
+        if year <= 1972: return "東映", "パ"
+        return "日拓", "パ"
+    if slug == "fighters": return "日本ハム", "パ"
+    if slug == "orions":
+        if year <= 1957: return "毎日", "パ"
+        if year <= 1963: return "大毎", "パ"
+        if year <= 1968: return "東京", "パ"
+        return "ロッテ", "パ"
+    if slug == "marines": return "ロッテ", "パ"
+    if slug in ("braves", "hankyu"):
+        if year <= 1988: return "阪急", "パ"
+        return "オリックス", "パ"
+    if slug == "bluewave": return "オリックス", "パ"
+    if slug == "buffaloes":
+        if year <= 2004: return "近鉄", "パ"
+        return "オリックス", "パ"
+    if slug in ("pearls", "buffalo", "kintetsu", "bluebirds"):
+        return "近鉄", "パ"
+    if slug == "eagles": return "楽天", "パ"
+    if slug == "stars": return "大映", "パ"
+    if slug in ("unions", "tombow", "takahashi"):
+        if year == 1955: return "トンボ", "パ"
+        if year == 1957: return "大映", "パ"
+        return "高橋", "パ"
+
     return "不明", "セ"
 
 def fetch_team_page(rel_url, delay=0.03):
@@ -50,8 +92,13 @@ def fetch_team_page(rel_url, delay=0.03):
         if "打席" not in text and "登板" not in text:
             with open(cache_path, 'rb') as fp:
                 raw = fp.read()
-            text = raw.decode('shift_jis', errors='replace')
-        return text
+            text = raw.decode('cp932', errors='replace')
+            if "打席" in text or "登板" in text:
+                with open(cache_path, 'w', encoding='utf-8') as fp:
+                    fp.write(text)
+                return text
+        else:
+            return text
     
     full_url = f"{BASE_URL}/{clean}"
     time.sleep(delay)
@@ -59,7 +106,7 @@ def fetch_team_page(rel_url, delay=0.03):
         req = urllib.request.Request(full_url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=10) as resp:
             raw = resp.read()
-        content = raw.decode('shift_jis', errors='replace')
+        content = raw.decode('cp932', errors='replace')
         with open(cache_path, 'w', encoding='utf-8') as fp:
             fp.write(content)
         return content

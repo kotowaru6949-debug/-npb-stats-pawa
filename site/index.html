@@ -38,10 +38,14 @@
     <section class="filter-panel">
       <div class="filter-row">
         <div class="filter-group">
-          <label for="yearFilter">年度</label>
-          <select id="yearFilter">
-            <option value="all">読み込み中...</option>
-          </select>
+          <label for="yearFilter">年度 (◀▶で前後移動)</label>
+          <div class="year-stepper-group">
+            <button type="button" id="globalPrevYearBtn" class="year-step-inline-btn" title="前年 (-1年)">◀ 前年</button>
+            <select id="yearFilter">
+              <option value="all">読み込み中...</option>
+            </select>
+            <button type="button" id="globalNextYearBtn" class="year-step-inline-btn" title="翌年 (+1年)">翌年 ▶</button>
+          </div>
         </div>
 
         <div class="filter-group">
@@ -176,9 +180,12 @@
       <div class="roster-header-card">
         <div class="roster-nav-row">
           <div class="roster-year-controls">
-            <button id="rosterPrevYearBtn" class="btn-outline roster-step-btn" title="前年の同チームへ">◀ 前年</button>
-            <h2 id="rosterTitleHeading" class="roster-title-heading">2024年 巨人</h2>
-            <button id="rosterNextYearBtn" class="btn-outline roster-step-btn" title="翌年の同チームへ">翌年 ▶</button>
+            <div class="roster-stepper-box">
+              <button type="button" id="rosterPrevYearBtn" class="btn-outline roster-step-btn" title="前年の同球団へ (◀キーでも移動可)">◀ 前年</button>
+              <select id="rosterYearSelect" class="roster-year-select" title="年度を直接選択"></select>
+              <button type="button" id="rosterNextYearBtn" class="btn-outline roster-step-btn" title="翌年の同球団へ (▶キーでも移動可)">翌年 ▶</button>
+            </div>
+            <h2 id="rosterTitleHeading" class="roster-title-heading">2024年 阪神</h2>
           </div>
           <div id="rosterSummaryBadges" class="roster-summary-badges"></div>
         </div>

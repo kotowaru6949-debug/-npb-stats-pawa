@@ -143,8 +143,13 @@ function populateYearFilter() {
   const select = document.getElementById("yearFilter");
   const sortedYears = Array.from(years).sort((a, b) => b - a);
   allAvailableYears = sortedYears;
-  select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>' +
-    sortedYears.map(y => `<option value="${y}">${y}年</option>`).join("");
+  const yearOptionsHtml = sortedYears.map(y => `<option value="${y}">${y}年</option>`).join("");
+  select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>' + yearOptionsHtml;
+
+  const rosterYearSelect = document.getElementById("rosterYearSelect");
+  if (rosterYearSelect) {
+    rosterYearSelect.innerHTML = yearOptionsHtml;
+  }
 }
 
 // 球団フィルターの選択肢を生成
@@ -315,43 +320,76 @@ function setupTableInteractions() {
   }
 }
 
+// 年度を前後移動する共通関数 (delta: -1 = 前年, +1 = 翌年)
+function stepYear(delta, isGlobalBtn = false) {
+  if (allAvailableYears.length === 0) return;
+  const minYear = allAvailableYears[allAvailableYears.length - 1];
+  const maxYear = allAvailableYears[0];
+  const yearFilterEl = document.getElementById("yearFilter");
+
+  if (isGlobalBtn && currentTab !== "teamRosterTab") {
+    let baseYear = yearFilterEl && yearFilterEl.value !== "all"
+      ? parseInt(yearFilterEl.value, 10)
+      : rosterYear;
+    const nextY = Math.max(minYear, Math.min(maxYear, baseYear + delta));
+    rosterYear = nextY;
+    if (yearFilterEl) yearFilterEl.value = nextY.toString();
+    renderCurrentTab();
+    return;
+  }
+
+  const nextY = Math.max(minYear, Math.min(maxYear, rosterYear + delta));
+  if (nextY !== rosterYear) {
+    rosterYear = nextY;
+    if (yearFilterEl && yearFilterEl.value !== "all") {
+      yearFilterEl.value = rosterYear.toString();
+    }
+    renderCurrentTab();
+  }
+}
+
 // 球団・年度別メンバー表の操作イベント設定
 function setupRosterControls() {
   const prevBtn = document.getElementById("rosterPrevYearBtn");
   const nextBtn = document.getElementById("rosterNextYearBtn");
+  const globalPrevBtn = document.getElementById("globalPrevYearBtn");
+  const globalNextBtn = document.getElementById("globalNextYearBtn");
+  const rosterYearSelect = document.getElementById("rosterYearSelect");
   const bSort = document.getElementById("rosterBatterSort");
   const pSort = document.getElementById("rosterPitcherSort");
   const pillsWrap = document.getElementById("rosterTeamPills");
 
-  if (prevBtn) {
-    prevBtn.addEventListener("click", () => {
-      if (allAvailableYears.length === 0) return;
-      const minYear = allAvailableYears[allAvailableYears.length - 1];
-      if (rosterYear > minYear) {
-        rosterYear--;
-        const yearFilterEl = document.getElementById("yearFilter");
-        if (yearFilterEl && yearFilterEl.value !== "all") {
-          yearFilterEl.value = rosterYear.toString();
-        }
-        renderTeamRoster();
+  if (prevBtn) prevBtn.addEventListener("click", () => stepYear(-1, false));
+  if (nextBtn) nextBtn.addEventListener("click", () => stepYear(1, false));
+  if (globalPrevBtn) globalPrevBtn.addEventListener("click", () => stepYear(-1, true));
+  if (globalNextBtn) globalNextBtn.addEventListener("click", () => stepYear(1, true));
+
+  if (rosterYearSelect) {
+    rosterYearSelect.addEventListener("change", () => {
+      rosterYear = parseInt(rosterYearSelect.value, 10);
+      const yearFilterEl = document.getElementById("yearFilter");
+      if (yearFilterEl && yearFilterEl.value !== "all") {
+        yearFilterEl.value = rosterYear.toString();
       }
+      renderTeamRoster();
     });
   }
 
-  if (nextBtn) {
-    nextBtn.addEventListener("click", () => {
-      if (allAvailableYears.length === 0) return;
-      const maxYear = allAvailableYears[0];
-      if (rosterYear < maxYear) {
-        rosterYear++;
-        const yearFilterEl = document.getElementById("yearFilter");
-        if (yearFilterEl && yearFilterEl.value !== "all") {
-          yearFilterEl.value = rosterYear.toString();
-        }
-        renderTeamRoster();
-      }
-    });
-  }
+  // キーボードの左右矢印キーでも年度移動可能（入力欄フォーカス時を除く）
+  document.addEventListener("keydown", (e) => {
+    if (currentTab !== "teamRosterTab") return;
+    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+    const modal = document.getElementById("playerModal");
+    if (modal && modal.classList.contains("active")) return;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      stepYear(-1, false);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      stepYear(1, false);
+    }
+  });
 
   if (bSort) {
     bSort.addEventListener("change", () => renderTeamRoster());
@@ -455,13 +493,13 @@ function renderTeamRoster() {
   const pacificTeams = new Set();
   yearBatters.forEach(b => {
     if (b.team && b.team !== "不明") {
-      if (b.league === "Central") centralTeams.add(b.team);
+      if (b.league === "セ") centralTeams.add(b.team);
       else pacificTeams.add(b.team);
     }
   });
   yearPitchers.forEach(p => {
     if (p.team && p.team !== "不明") {
-      if (p.league === "Central") centralTeams.add(p.team);
+      if (p.league === "セ") centralTeams.add(p.team);
       else pacificTeams.add(p.team);
     }
   });
@@ -473,13 +511,15 @@ function renderTeamRoster() {
   // フランチャイズ引き継ぎ解決
   rosterTeam = resolveFranchiseTeam(rosterTeam, allTeamsInYear);
 
-  // 前年・翌年ボタンの活性制御とタイトル更新
+  // 前年・翌年ボタンの活性制御と年度セレクト・タイトル更新
   const minYear = allAvailableYears[allAvailableYears.length - 1] || 1950;
   const maxYear = allAvailableYears[0] || 2025;
   const prevBtn = document.getElementById("rosterPrevYearBtn");
   const nextBtn = document.getElementById("rosterNextYearBtn");
+  const rosterYearSelect = document.getElementById("rosterYearSelect");
   if (prevBtn) prevBtn.disabled = (rosterYear <= minYear);
   if (nextBtn) nextBtn.disabled = (rosterYear >= maxYear);
+  if (rosterYearSelect) rosterYearSelect.value = rosterYear.toString();
 
   const teamLeague = centralTeams.has(rosterTeam) ? "セ・リーグ" : "パ・リーグ";
   const titleEl = document.getElementById("rosterTitleHeading");
@@ -487,18 +527,19 @@ function renderTeamRoster() {
     titleEl.innerHTML = `${rosterYear}年 ${rosterTeam} <small style="font-size:0.85rem; color:#94a3b8; font-weight:normal;">(${teamLeague})</small>`;
   }
 
-  // 球団クイック切替ピル描画
+  // 球団クイック切替ピル描画（セ・パ2段の横並び）
   const pillsEl = document.getElementById("rosterTeamPills");
   if (pillsEl) {
-    const makePills = (teams, label, badgeColor) => {
+    const makeRow = (teams, label, cls) => {
       if (teams.length === 0) return "";
-      return `<span class="league-pill-label" style="color:${badgeColor};">${label}</span>` +
-        teams.map(t => `<button class="team-pill-btn ${t === rosterTeam ? 'active' : ''}" data-team="${t}">${t}</button>`).join("");
+      return `<div class="roster-league-row">` +
+        `<span class="roster-league-label ${cls}">${label}</span>` +
+        teams.map(t => `<button type="button" class="team-pill-btn ${t === rosterTeam ? 'active' : ''}" data-team="${t}">${t}</button>`).join("") +
+        `</div>`;
     };
     pillsEl.innerHTML =
-      makePills(cList, "セ:", "#38bdf8") +
-      `<span style="margin: 0 0.35rem; color: #334155;">|</span>` +
-      makePills(pList, "パ:", "#4ade80");
+      makeRow(cList, "セ", "roster-league-cl") +
+      makeRow(pList, "パ", "roster-league-pl");
   }
 
   // 当該球団の野手・投手を取得
