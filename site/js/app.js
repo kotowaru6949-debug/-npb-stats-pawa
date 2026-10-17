@@ -92,6 +92,7 @@ async function loadData() {
     allBatters.forEach((b, i) => {
       b._idx = i;
       b._yearStr = b.year.toString();
+      b.tb_bb = (b.tb || 0) + (b.bb || 0);
       const raw = `${b.name} ${b.team} ${b._yearStr}`.toLowerCase();
       b._searchRaw = raw;
       b._searchNoSpace = raw.replace(/[\s\u3000]+/g, "");
@@ -616,7 +617,8 @@ function renderTeamRoster() {
       ? `<span class="role-badge role-starter">主力</span>`
       : `<span class="role-badge role-bench">控え</span>`;
     const qualTag = b.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
-    const bbk = (b.bb_k != null ? b.bb_k : 0);
+    const tbBb = b.tb_bb != null ? b.tb_bb : ((b.tb || 0) + (b.bb || 0));
+    const tbBbColor = tbBb >= 350 ? '#ef4444' : tbBb >= 280 ? '#f472b6' : '#fff';
     return `<tr>
       <td>${roleBadge}</td>
       <td><span class="pos-tag">${b.primary_pos}</span></td>
@@ -624,13 +626,13 @@ function renderTeamRoster() {
       <td>${b.g || '-'}</td>
       <td><strong>${b.pa || '-'}</strong></td>
       <td><strong style="color:${b.ops_plus >= 140 ? '#ef4444' : b.ops_plus >= 115 ? '#38bdf8' : '#fff'}">${b.ops_plus.toFixed(1)}</strong></td>
+      <td><strong style="color:${tbBbColor}" title="塁打:${b.tb || 0} + 四球:${b.bb || 0}">${tbBb}</strong></td>
       <td>.${b.avg.toFixed(3).replace(/^0\./, '')}</td>
       <td><strong>${b.hr}</strong></td>
       <td>${b.rbi}</td>
       <td>${b.sb}</td>
       <td>.${b.obp.toFixed(3).replace(/^0\./, '')}</td>
       <td>.${b.ops.toFixed(3).replace(/^0\./, '')}</td>
-      <td style="color:${bbk >= 1.0 ? '#4ade80' : '#cbd5e1'}" title="四球:${b.bb || 0} / 三振:${b.so || 0}">${bbk.toFixed(2)}</td>
       <td>${getRankBadge(b.meet_rank, b.meet)}</td>
       <td>${getRankBadge(b.power_rank, b.power)}</td>
       <td>${getRankBadge(b.speed_rank, b.speed)}</td>
@@ -774,7 +776,8 @@ function renderTeamRoster() {
 
 // 打者1行分のHTML生成
 function createBatterRowHtml(b) {
-  const bbk = (b.bb_k != null ? b.bb_k : 0);
+  const tbBb = b.tb_bb != null ? b.tb_bb : ((b.tb || 0) + (b.bb || 0));
+  const tbBbColor = tbBb >= 350 ? '#ef4444' : tbBb >= 280 ? '#f472b6' : '#fff';
   return `<tr>
     <td>${b.year}</td>
     <td>${b.team}</td>
@@ -783,11 +786,11 @@ function createBatterRowHtml(b) {
     <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
     <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
     <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
+    <td><strong style="color:${tbBbColor}" title="塁打:${b.tb || 0} + 四球:${b.bb || 0}">${tbBb}</strong></td>
     <td>${b.ops.toFixed(3)}</td>
     <td>${b.avg.toFixed(3)}</td>
     <td>${b.hr}</td>
     <td>${b.rbi}</td>
-    <td style="color:${bbk >= 1.0 ? '#4ade80' : '#cbd5e1'}" title="四球:${b.bb || 0} / 三振:${b.so || 0}">${bbk.toFixed(2)}</td>
     <td style="color:${b.wsb >= 0 ? '#38bdf8' : '#f87171'}">${b.wsb > 0 ? '+' : ''}${b.wsb.toFixed(2)}</td>
     <td>${getRankBadge(b.meet_rank, b.meet)}</td>
     <td>${getRankBadge(b.power_rank, b.power)}</td>
@@ -1624,6 +1627,7 @@ function renderModalCareerTable() {
         <th>OPS+</th>
         <th>OBP+</th>
         <th>ISO+</th>
+        <th>塁打+四球</th>
         <th>打率</th>
         <th>出塁率</th>
         <th>長打率</th>
@@ -1639,7 +1643,10 @@ function renderModalCareerTable() {
       </tr>
     `;
 
-    tbody.innerHTML = currentModalPlayerRecords.map(b => `
+    tbody.innerHTML = currentModalPlayerRecords.map(b => {
+      const tbBb = b.tb_bb != null ? b.tb_bb : ((b.tb || 0) + (b.bb || 0));
+      const tbBbColor = tbBb >= 350 ? '#ef4444' : tbBb >= 280 ? '#f472b6' : '#fff';
+      return `
       <tr>
         <td>${b.year}</td>
         <td>${b.team}</td>
@@ -1648,6 +1655,7 @@ function renderModalCareerTable() {
         <td><strong style="color:${b.ops_plus >= 150 ? '#ef4444' : '#fff'};">${b.ops_plus.toFixed(1)}</strong></td>
         <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
         <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
+        <td><strong style="color:${tbBbColor}" title="塁打:${b.tb || 0} + 四球:${b.bb || 0}">${tbBb}</strong></td>
         <td>.${b.avg.toFixed(3)}</td>
         <td>.${b.obp.toFixed(3)}</td>
         <td>.${b.slg.toFixed(3)}</td>
@@ -1661,7 +1669,8 @@ function renderModalCareerTable() {
         <td>${getRankBadge(b.defense_rank, b.defense)}</td>
         <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
       </tr>
-    `).join("");
+    `;
+    }).join("");
   } else {
     // 投手
     thead.innerHTML = `
