@@ -558,17 +558,20 @@ function renderTeamRoster() {
   const weightedFipMinus = totalIp > 0
     ? teamPitchers.reduce((sum, p) => sum + p.fip_minus * (p.ip || 0), 0) / totalIp
     : 100;
+  const weightedKbbPct = totalIp > 0
+    ? teamPitchers.reduce((sum, p) => sum + (p.k_bb_pct || 0) * (p.ip || 0), 0) / totalIp
+    : 0;
   const totalWins = teamPitchers.reduce((sum, p) => sum + (p.w || 0), 0);
   const totalSaves = teamPitchers.reduce((sum, p) => sum + (p.sv || 0), 0);
 
   const summaryEl = document.getElementById("rosterSummaryBadges");
   if (summaryEl) {
     summaryEl.innerHTML = `
-      <div class="roster-stat-pill">野手掲載: <strong>${teamBatters.length}名</strong> / 投手掲載: <strong>${teamPitchers.length}名</strong></div>
-      <div class="roster-stat-pill">打線加重OPS+: <strong style="color:${weightedOpsPlus >= 105 ? '#ef4444' : '#38bdf8'}">${weightedOpsPlus.toFixed(1)}</strong></div>
-      <div class="roster-stat-pill">主要HR計: <strong>${totalHr}本</strong> / 盗塁計: <strong>${totalSb}個</strong></div>
-      <div class="roster-stat-pill">投手加重FIP-: <strong style="color:${weightedFipMinus <= 95 ? '#4ade80' : '#f8fafc'}">${weightedFipMinus.toFixed(1)}</strong></div>
-      <div class="roster-stat-pill">主要勝星計: <strong>${totalWins}勝</strong> (S:${totalSaves})</div>
+      <div class="roster-stat-pill">野手: <strong>${teamBatters.length}名</strong> / 投手: <strong>${teamPitchers.length}名</strong></div>
+      <div class="roster-stat-pill">打線OPS+: <strong style="color:${weightedOpsPlus >= 105 ? '#ef4444' : '#38bdf8'}">${weightedOpsPlus.toFixed(1)}</strong></div>
+      <div class="roster-stat-pill">主要HR: <strong>${totalHr}本</strong> / 盗塁: <strong>${totalSb}個</strong></div>
+      <div class="roster-stat-pill">投手FIP-: <strong style="color:${weightedFipMinus <= 95 ? '#4ade80' : '#f8fafc'}">${weightedFipMinus.toFixed(1)}</strong> / K-BB%: <strong style="color:${weightedKbbPct >= 14 ? '#f472b6' : '#38bdf8'}">${weightedKbbPct.toFixed(1)}%</strong></div>
+      <div class="roster-stat-pill">主要勝星: <strong>${totalWins}勝</strong> (S:${totalSaves})</div>
     `;
   }
 
@@ -710,6 +713,7 @@ function renderTeamRoster() {
 
   const renderPitcherRosterRow = (p) => {
     const qualTag = p.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
+    const kbbColor = p.k_bb_pct >= 20 ? '#ef4444' : p.k_bb_pct >= 15 ? '#f472b6' : '#fff';
     return `<tr>
       <td>${getPitcherRoleBadge(p)}</td>
       <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${qualTag}</td>
@@ -722,10 +726,13 @@ function renderTeamRoster() {
       <td><strong style="color:${(p.hld || 0) >= 15 ? '#4ade80' : '#cbd5e1'}">${p.hld != null ? p.hld : 0}</strong></td>
       <td><strong>${p.ip.toFixed(1)}</strong></td>
       <td>${p.so}</td>
+      <td>${p.bb != null ? p.bb : '-'}</td>
       <td>${p.era.toFixed(2)}</td>
       <td><strong style="color:${p.fip_minus <= 75 ? '#ef4444' : p.fip_minus <= 90 ? '#38bdf8' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
+      <td><strong style="color:${kbbColor}" title="K-BB実数: ${(p.k_bb || (p.so - (p.bb || 0)))}">${p.k_bb_pct.toFixed(1)}%</strong></td>
       <td style="color:#38bdf8;">${(p.k_pct_plus || 100).toFixed(1)}</td>
       <td style="color:${(p.bb_pct_minus || 100) <= 80 ? '#4ade80' : '#cbd5e1'}">${(p.bb_pct_minus || 100).toFixed(1)}</td>
+      <td style="color:${(p.hr_pct_minus || 100) <= 80 ? '#4ade80' : '#cbd5e1'}">${(p.hr_pct_minus || 100).toFixed(1)}</td>
       <td>${getRankBadge(p.control_rank, p.control)}</td>
       <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
       <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
@@ -739,15 +746,15 @@ function renderTeamRoster() {
   const rpBody = document.getElementById("rosterPitchersBody");
   if (rpBody) {
     if (teamPitchers.length === 0) {
-      rpBody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する投手データがありません</td></tr>`;
+      rpBody.innerHTML = `<tr><td colspan="21" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する投手データがありません</td></tr>`;
     } else if (pSortMode === "role") {
       let html = "";
       if (startersP.length > 0) {
-        html += `<tr class="roster-divider-row"><td colspan="18">▼ 先発ローテーション・先発陣（投球回順）</td></tr>`;
+        html += `<tr class="roster-divider-row"><td colspan="21">▼ 先発ローテーション・先発陣（投球回順）</td></tr>`;
         html += startersP.map(renderPitcherRosterRow).join("");
       }
       if (relieversP.length > 0) {
-        html += `<tr class="roster-divider-row"><td colspan="18">▼ リリーフ・抑え陣（セーブ・ホールド・登板数順 / 30投球回以上）</td></tr>`;
+        html += `<tr class="roster-divider-row"><td colspan="21">▼ リリーフ・抑え陣（セーブ・ホールド・登板数順 / 30投球回以上）</td></tr>`;
         html += relieversP.map(renderPitcherRosterRow).join("");
       }
       rpBody.innerHTML = html;
@@ -836,21 +843,23 @@ function appendMoreBatters() {
 
 // 投手1行分のHTML生成
 function createPitcherRowHtml(p) {
+  const kbbColor = p.k_bb_pct >= 20 ? '#ef4444' : p.k_bb_pct >= 15 ? '#f472b6' : '#fff';
   return `<tr>
     <td>${p.year}</td>
     <td>${p.team}</td>
     <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
     <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
+    <td><strong style="color:${kbbColor}" title="K-BB実数: ${(p.k_bb || (p.so - (p.bb || 0)))}">${p.k_bb_pct.toFixed(1)}%</strong></td>
     <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
     <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
     <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
     <td>${p.era.toFixed(2)}</td>
     <td>${p.fip.toFixed(2)}</td>
-    <td>${p.k_bb_pct.toFixed(1)}%</td>
     <td>${p.w}</td>
     <td>${p.l}</td>
     <td>${p.ip.toFixed(1)}</td>
     <td>${p.so}</td>
+    <td>${p.bb != null ? p.bb : '-'}</td>
     <td>${getRankBadge(p.control_rank, p.control)}</td>
     <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
     <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
@@ -1653,42 +1662,47 @@ function renderModalCareerTable() {
         <th>球団</th>
         <th>年齢</th>
         <th>FIP-</th>
+        <th>K-BB%</th>
         <th>K%+</th>
         <th>BB%-</th>
         <th>HR%-</th>
         <th>防御率</th>
         <th>FIP</th>
-        <th>K-BB%</th>
         <th>勝</th>
         <th>敗</th>
         <th>回数</th>
         <th>奪三振</th>
+        <th>与四球</th>
         <th>制球</th>
         <th>球威</th>
         <th>スタミナ</th>
       </tr>
     `;
 
-    tbody.innerHTML = currentModalPlayerRecords.map(p => `
+    tbody.innerHTML = currentModalPlayerRecords.map(p => {
+      const kbbColor = p.k_bb_pct >= 20 ? '#ef4444' : p.k_bb_pct >= 15 ? '#f472b6' : '#fff';
+      return `
       <tr>
         <td>${p.year}</td>
         <td>${p.team}</td>
         <td>${p.age}</td>
         <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'};">${p.fip_minus.toFixed(1)}</strong></td>
+        <td><strong style="color:${kbbColor}" title="K-BB実数: ${(p.k_bb || (p.so - (p.bb || 0)))}">${p.k_bb_pct.toFixed(1)}%</strong></td>
         <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
         <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
         <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
         <td>${p.era.toFixed(2)}</td>
         <td>${p.fip.toFixed(2)}</td>
-        <td>${p.k_bb_pct.toFixed(1)}%</td>
         <td>${p.w}</td>
         <td>${p.l}</td>
         <td>${p.ip.toFixed(1)}</td>
         <td>${p.so}</td>
+        <td>${p.bb != null ? p.bb : '-'}</td>
         <td>${getRankBadge(p.control_rank, p.control)}</td>
         <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
         <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
       </tr>
-    `).join("");
+    `;
+    }).join("");
   }
 }
