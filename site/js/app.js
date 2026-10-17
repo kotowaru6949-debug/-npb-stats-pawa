@@ -82,8 +82,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadData() {
   try {
     const [bRes, pRes] = await Promise.all([
-      fetch("data/batters.json"),
-      fetch("data/pitchers.json")
+      fetch("data/batters.json?v=20261017_3"),
+      fetch("data/pitchers.json?v=20261017_3")
     ]);
     allBatters = await bRes.json();
     allPitchers = await pRes.json();
@@ -616,6 +616,7 @@ function renderTeamRoster() {
       ? `<span class="role-badge role-starter">主力</span>`
       : `<span class="role-badge role-bench">控え</span>`;
     const qualTag = b.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
+    const bbk = (b.bb_k != null ? b.bb_k : 0);
     return `<tr>
       <td>${roleBadge}</td>
       <td><span class="pos-tag">${b.primary_pos}</span></td>
@@ -629,6 +630,7 @@ function renderTeamRoster() {
       <td>${b.sb}</td>
       <td>.${b.obp.toFixed(3).replace(/^0\./, '')}</td>
       <td>.${b.ops.toFixed(3).replace(/^0\./, '')}</td>
+      <td style="color:${bbk >= 1.0 ? '#4ade80' : '#cbd5e1'}" title="四球:${b.bb || 0} / 三振:${b.so || 0}">${bbk.toFixed(2)}</td>
       <td>${getRankBadge(b.meet_rank, b.meet)}</td>
       <td>${getRankBadge(b.power_rank, b.power)}</td>
       <td>${getRankBadge(b.speed_rank, b.speed)}</td>
@@ -640,7 +642,7 @@ function renderTeamRoster() {
   const rbBody = document.getElementById("rosterBattersBody");
   if (rbBody) {
     if (teamBatters.length === 0) {
-      rbBody.innerHTML = `<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する野手データがありません</td></tr>`;
+      rbBody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する野手データがありません</td></tr>`;
     } else if (bSortMode === "lineup") {
       const starters = teamBatters.filter(b => starterSet.has(b)).sort((a, b) => {
         const oa = POS_ORDER[a.primary_pos] || 9;
@@ -650,10 +652,10 @@ function renderTeamRoster() {
       });
       const bench = teamBatters.filter(b => !starterSet.has(b)).sort((a, b) => (b.pa || 0) - (a.pa || 0));
 
-      let html = `<tr class="roster-divider-row"><td colspan="17">▼ 主力スタメン（守備位置順：捕・一・二・三・遊・外・指）</td></tr>`;
+      let html = `<tr class="roster-divider-row"><td colspan="18">▼ 主力スタメン（守備位置順：捕・一・二・三・遊・外・指）</td></tr>`;
       html += starters.map(renderBatterRosterRow).join("");
       if (bench.length > 0) {
-        html += `<tr class="roster-divider-row"><td colspan="17">▼ 準主力・控え野手（打席数順 / 150打席以上）</td></tr>`;
+        html += `<tr class="roster-divider-row"><td colspan="18">▼ 準主力・控え野手（打席数順 / 150打席以上）</td></tr>`;
         html += bench.map(renderBatterRosterRow).join("");
       }
       rbBody.innerHTML = html;
@@ -714,6 +716,7 @@ function renderTeamRoster() {
   const renderPitcherRosterRow = (p) => {
     const qualTag = p.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
     const kbbColor = p.k_bb_pct >= 20 ? '#ef4444' : p.k_bb_pct >= 15 ? '#f472b6' : '#fff';
+    const kbbDiff = p.k_bb != null ? p.k_bb : (p.so - (p.bb || 0));
     return `<tr>
       <td>${getPitcherRoleBadge(p)}</td>
       <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${qualTag}</td>
@@ -729,7 +732,8 @@ function renderTeamRoster() {
       <td>${p.bb != null ? p.bb : '-'}</td>
       <td>${p.era.toFixed(2)}</td>
       <td><strong style="color:${p.fip_minus <= 75 ? '#ef4444' : p.fip_minus <= 90 ? '#38bdf8' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
-      <td><strong style="color:${kbbColor}" title="K-BB実数: ${(p.k_bb || (p.so - (p.bb || 0)))}">${p.k_bb_pct.toFixed(1)}%</strong></td>
+      <td><strong style="color:${kbbColor}">${p.k_bb_pct.toFixed(1)}%</strong></td>
+      <td><strong style="color:${kbbDiff >= 100 ? '#f472b6' : '#cbd5e1'}">${kbbDiff > 0 ? '+' : ''}${kbbDiff}</strong></td>
       <td style="color:#38bdf8;">${(p.k_pct_plus || 100).toFixed(1)}</td>
       <td style="color:${(p.bb_pct_minus || 100) <= 80 ? '#4ade80' : '#cbd5e1'}">${(p.bb_pct_minus || 100).toFixed(1)}</td>
       <td style="color:${(p.hr_pct_minus || 100) <= 80 ? '#4ade80' : '#cbd5e1'}">${(p.hr_pct_minus || 100).toFixed(1)}</td>
@@ -746,15 +750,15 @@ function renderTeamRoster() {
   const rpBody = document.getElementById("rosterPitchersBody");
   if (rpBody) {
     if (teamPitchers.length === 0) {
-      rpBody.innerHTML = `<tr><td colspan="21" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する投手データがありません</td></tr>`;
+      rpBody.innerHTML = `<tr><td colspan="22" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する投手データがありません</td></tr>`;
     } else if (pSortMode === "role") {
       let html = "";
       if (startersP.length > 0) {
-        html += `<tr class="roster-divider-row"><td colspan="21">▼ 先発ローテーション・先発陣（投球回順）</td></tr>`;
+        html += `<tr class="roster-divider-row"><td colspan="22">▼ 先発ローテーション・先発陣（投球回順）</td></tr>`;
         html += startersP.map(renderPitcherRosterRow).join("");
       }
       if (relieversP.length > 0) {
-        html += `<tr class="roster-divider-row"><td colspan="21">▼ リリーフ・抑え陣（セーブ・ホールド・登板数順 / 30投球回以上）</td></tr>`;
+        html += `<tr class="roster-divider-row"><td colspan="22">▼ リリーフ・抑え陣（セーブ・ホールド・登板数順 / 30投球回以上）</td></tr>`;
         html += relieversP.map(renderPitcherRosterRow).join("");
       }
       rpBody.innerHTML = html;
@@ -770,6 +774,7 @@ function renderTeamRoster() {
 
 // 打者1行分のHTML生成
 function createBatterRowHtml(b) {
+  const bbk = (b.bb_k != null ? b.bb_k : 0);
   return `<tr>
     <td>${b.year}</td>
     <td>${b.team}</td>
@@ -782,6 +787,7 @@ function createBatterRowHtml(b) {
     <td>${b.avg.toFixed(3)}</td>
     <td>${b.hr}</td>
     <td>${b.rbi}</td>
+    <td style="color:${bbk >= 1.0 ? '#4ade80' : '#cbd5e1'}" title="四球:${b.bb || 0} / 三振:${b.so || 0}">${bbk.toFixed(2)}</td>
     <td style="color:${b.wsb >= 0 ? '#38bdf8' : '#f87171'}">${b.wsb > 0 ? '+' : ''}${b.wsb.toFixed(2)}</td>
     <td>${getRankBadge(b.meet_rank, b.meet)}</td>
     <td>${getRankBadge(b.power_rank, b.power)}</td>
@@ -844,12 +850,14 @@ function appendMoreBatters() {
 // 投手1行分のHTML生成
 function createPitcherRowHtml(p) {
   const kbbColor = p.k_bb_pct >= 20 ? '#ef4444' : p.k_bb_pct >= 15 ? '#f472b6' : '#fff';
+  const kbbDiff = p.k_bb != null ? p.k_bb : (p.so - (p.bb || 0));
   return `<tr>
     <td>${p.year}</td>
     <td>${p.team}</td>
     <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
     <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
-    <td><strong style="color:${kbbColor}" title="K-BB実数: ${(p.k_bb || (p.so - (p.bb || 0)))}">${p.k_bb_pct.toFixed(1)}%</strong></td>
+    <td><strong style="color:${kbbColor}">${p.k_bb_pct.toFixed(1)}%</strong></td>
+    <td><strong style="color:${kbbDiff >= 100 ? '#f472b6' : '#cbd5e1'}">${kbbDiff > 0 ? '+' : ''}${kbbDiff}</strong></td>
     <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
     <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
     <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>

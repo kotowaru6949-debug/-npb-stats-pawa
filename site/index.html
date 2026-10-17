@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NPB セイバーメトリクス & パワプロ査定アーカイブ</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261017_3">
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -123,6 +123,7 @@
               <th data-sort="avg">打率 ⬍</th>
               <th data-sort="hr">HR ⬍</th>
               <th data-sort="rbi">打点 ⬍</th>
+              <th data-sort="bb_k">BB/K ⬍</th>
               <th data-sort="wsb">wSB ⬍</th>
               <th data-sort="meet">ミート ⬍</th>
               <th data-sort="power">パワー ⬍</th>
@@ -153,6 +154,7 @@
               <th data-sort="name">選手名 ⬍</th>
               <th data-sort="fip_minus" class="highlight-th">FIP- ⬍</th>
               <th data-sort="k_bb_pct" class="highlight-th">K-BB% ⬍</th>
+              <th data-sort="k_bb" class="highlight-th">K-BB ⬍</th>
               <th data-sort="k_pct_plus" class="highlight-th">K%+ ⬍</th>
               <th data-sort="bb_pct_minus" class="highlight-th">BB%- ⬍</th>
               <th data-sort="hr_pct_minus" class="highlight-th">HR%- ⬍</th>
@@ -222,6 +224,7 @@
                 <th>盗塁</th>
                 <th>出塁率</th>
                 <th>OPS</th>
+                <th>BB/K</th>
                 <th>ミート</th>
                 <th>パワー</th>
                 <th>走力</th>
@@ -244,7 +247,8 @@
               <option value="ip">投球回順</option>
               <option value="g">登板数順</option>
               <option value="fip_minus">FIP-順 (失点抑止力順)</option>
-              <option value="k_bb_pct">K-BB%順 (投球支配力順)</option>
+              <option value="k_bb_pct">K-BB%順 (奪三振率-与四球率)</option>
+              <option value="k_bb">K-BB順 (奪三振-与四球 実数)</option>
             </select>
           </div>
         </div>
@@ -267,6 +271,7 @@
                 <th>防御率</th>
                 <th class="highlight-th">FIP-</th>
                 <th class="highlight-th">K-BB%</th>
+                <th class="highlight-th">K-BB</th>
                 <th class="highlight-th">K%+</th>
                 <th class="highlight-th">BB%-</th>
                 <th class="highlight-th">HR%-</th>
@@ -356,6 +361,6 @@
     <p>データ提供元: <a href="https://2689web.com/" target="_blank" rel="noopener">2689web.com (日本プロ野球記録)</a> | 査定基準: パワー(ISO+) / ミート(OBP+・打率) / 守備力(RRF 100%・ポジション補正なし) / 捕球(守備率 100%) | 1950〜2025年 全76年間網羅</p>
   </footer>
 
-  <script src="js/app.js"></script>
+  <script src="js/app.js?v=20261017_3"></script>
 </body>
 </html>
