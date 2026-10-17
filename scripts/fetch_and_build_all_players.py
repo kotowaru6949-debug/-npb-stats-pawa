@@ -476,14 +476,14 @@ def main():
     data_pitchers_json = os.path.join(BASE_DIR, "data", "processed", "pitchers.json")
 
     with open(site_batters_json, "w", encoding="utf-8") as fp:
-        json.dump(final_batters, fp, ensure_ascii=False, indent=2)
+        json.dump(final_batters, fp, ensure_ascii=False, separators=(',', ':'))
     with open(data_batters_json, "w", encoding="utf-8") as fp:
-        json.dump(final_batters, fp, ensure_ascii=False, indent=2)
+        json.dump(final_batters, fp, ensure_ascii=False, separators=(',', ':'))
 
     with open(site_pitchers_json, "w", encoding="utf-8") as fp:
-        json.dump(final_pitchers, fp, ensure_ascii=False, indent=2)
+        json.dump(final_pitchers, fp, ensure_ascii=False, separators=(',', ':'))
     with open(data_pitchers_json, "w", encoding="utf-8") as fp:
-        json.dump(final_pitchers, fp, ensure_ascii=False, indent=2)
+        json.dump(final_pitchers, fp, ensure_ascii=False, separators=(',', ':'))
 
     site_batters_csv = os.path.join(BASE_DIR, "site", "data", "batters.csv")
     site_pitchers_csv = os.path.join(BASE_DIR, "site", "data", "pitchers.csv")

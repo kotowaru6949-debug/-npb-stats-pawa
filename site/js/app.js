@@ -6,11 +6,34 @@ let sortOrder = "desc";
 let scatterChart = null;
 let radarChart = null;
 
+// ページネーション・仮想スクロール管理
+const PAGE_SIZE = 200;
+let currentBattersList = [];
+let displayedBattersCount = 0;
+let currentPitchersList = [];
+let displayedPitchersCount = 0;
+
+// 高速検索・キャリア参照用インデックス
+const batterByUrlMap = new Map();
+const batterByNameMap = new Map();
+const pitcherByUrlMap = new Map();
+const pitcherByNameMap = new Map();
+let isCompareInitialized = false;
+
 // モーダル管理変数
 let modalTrendChart = null;
 let currentModalPlayerRecords = [];
 let currentModalIsBatter = true;
 let currentModalChartType = "pawa"; // "pawa" or "saber"
+
+// デバウンス関数
+function debounce(fn, delay = 150) {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
 
 // パワプロランクバッジ生成
 function getRankBadge(rank, score) {
@@ -23,12 +46,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupTabs();
   setupFilters();
   setupSorting();
+  setupTableInteractions();
   setupCsvDownload();
   setupPlayerModal();
   await loadData();
 });
 
-// データ取得
+// データ取得とインデックス構築
 async function loadData() {
   try {
     const [bRes, pRes] = await Promise.all([
@@ -38,9 +62,43 @@ async function loadData() {
     allBatters = await bRes.json();
     allPitchers = await pRes.json();
 
+    // 事前インデックス化（検索・モーダル起動をO(1)化）
+    allBatters.forEach((b, i) => {
+      b._idx = i;
+      b._yearStr = b.year.toString();
+      const raw = `${b.name} ${b.team} ${b._yearStr}`.toLowerCase();
+      b._searchRaw = raw;
+      b._searchNoSpace = raw.replace(/[\s\u3000]+/g, "");
+
+      if (b.player_url) {
+        let arr = batterByUrlMap.get(b.player_url);
+        if (!arr) { arr = []; batterByUrlMap.set(b.player_url, arr); }
+        arr.push(b);
+      }
+      let nArr = batterByNameMap.get(b.name);
+      if (!nArr) { nArr = []; batterByNameMap.set(b.name, nArr); }
+      nArr.push(b);
+    });
+
+    allPitchers.forEach((p, i) => {
+      p._idx = i;
+      p._yearStr = p.year.toString();
+      const raw = `${p.name} ${p.team} ${p._yearStr}`.toLowerCase();
+      p._searchRaw = raw;
+      p._searchNoSpace = raw.replace(/[\s\u3000]+/g, "");
+
+      if (p.player_url) {
+        let arr = pitcherByUrlMap.get(p.player_url);
+        if (!arr) { arr = []; pitcherByUrlMap.set(p.player_url, arr); }
+        arr.push(p);
+      }
+      let nArr = pitcherByNameMap.get(p.name);
+      if (!nArr) { nArr = []; pitcherByNameMap.set(p.name, nArr); }
+      nArr.push(p);
+    });
+
     populateYearFilter();
     populateTeamFilter();
-    populateCompareSelects();
     renderCurrentTab();
   } catch (err) {
     console.error("データの読み込みに失敗しました:", err);
@@ -54,14 +112,21 @@ function populateYearFilter() {
   allPitchers.forEach(p => years.add(p.year));
 
   const select = document.getElementById("yearFilter");
-  select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>';
+  const sortedYears = Array.from(years).sort((a, b) => b - a);
+  select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>' +
+    sortedYears.map(y => `<option value="${y}">${y}年</option>`).join("");
+}
 
-  Array.from(years).sort((a, b) => b - a).forEach(y => {
-    const opt = document.createElement("option");
-    opt.value = y.toString();
-    opt.textContent = `${y}年`;
-    select.appendChild(opt);
-  });
+// 球団フィルターの選択肢を生成
+function populateTeamFilter() {
+  const teams = new Set();
+  allBatters.forEach(b => { if (b.team && b.team !== "不明") teams.add(b.team); });
+  allPitchers.forEach(p => { if (p.team && p.team !== "不明") teams.add(p.team); });
+
+  const select = document.getElementById("teamFilter");
+  const sortedTeams = Array.from(teams).sort();
+  select.innerHTML = '<option value="all">全球団</option>' +
+    sortedTeams.map(t => `<option value="${t}">${t}</option>`).join("");
 }
 
 // タブ切り替え
@@ -95,12 +160,17 @@ function setupTabs() {
 
 // フィルターイベント設定
 function setupFilters() {
-  ["yearFilter", "leagueFilter", "teamFilter", "posFilter", "qualFilter", "searchQuery"].forEach(id => {
+  ["yearFilter", "leagueFilter", "teamFilter", "posFilter", "qualFilter"].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener("input", () => renderCurrentTab());
+      el.addEventListener("change", () => renderCurrentTab());
     }
   });
+
+  const searchInput = document.getElementById("searchQuery");
+  if (searchInput) {
+    searchInput.addEventListener("input", debounce(() => renderCurrentTab(), 150));
+  }
 
   const chartSelect = document.getElementById("chartTypeSelect");
   if (chartSelect) {
@@ -113,21 +183,76 @@ function setupFilters() {
     compA.addEventListener("change", () => updateCompareView());
     compB.addEventListener("change", () => updateCompareView());
   }
+
+  const compSearchA = document.getElementById("compareSearchA");
+  const compSearchB = document.getElementById("compareSearchB");
+  if (compSearchA) {
+    compSearchA.addEventListener("input", debounce(() => {
+      populateSingleCompareSelect("compareSelectA", compSearchA.value, 0);
+      updateCompareView();
+    }, 150));
+  }
+  if (compSearchB) {
+    compSearchB.addEventListener("input", debounce(() => {
+      populateSingleCompareSelect("compareSelectB", compSearchB.value, 1);
+      updateCompareView();
+    }, 150));
+  }
 }
 
-// 球団フィルターの選択肢を生成
-function populateTeamFilter() {
-  const teams = new Set();
-  allBatters.forEach(b => { if (b.team && b.team !== "不明") teams.add(b.team); });
-  allPitchers.forEach(p => { if (p.team && p.team !== "不明") teams.add(p.team); });
+// テーブルのスクロール自動読み込み＆イベント委譲
+function setupTableInteractions() {
+  const bBody = document.getElementById("battersBody");
+  if (bBody) {
+    bBody.addEventListener("click", (e) => {
+      const cell = e.target.closest(".player-name");
+      if (cell) {
+        openPlayerModal(cell.dataset.url || "", cell.dataset.name || "", true);
+      }
+    });
+  }
 
-  const select = document.getElementById("teamFilter");
-  Array.from(teams).sort().forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t;
-    opt.textContent = t;
-    select.appendChild(opt);
-  });
+  const pBody = document.getElementById("pitchersBody");
+  if (pBody) {
+    pBody.addEventListener("click", (e) => {
+      const cell = e.target.closest(".player-name");
+      if (cell) {
+        openPlayerModal(cell.dataset.url || "", cell.dataset.name || "", false);
+      }
+    });
+  }
+
+  const bContainer = document.getElementById("battersTableContainer");
+  if (bContainer) {
+    bContainer.addEventListener("scroll", () => {
+      if (displayedBattersCount < currentBattersList.length) {
+        if (bContainer.scrollTop + bContainer.clientHeight >= bContainer.scrollHeight - 280) {
+          appendMoreBatters();
+        }
+      }
+    }, { passive: true });
+  }
+
+  const pContainer = document.getElementById("pitchersTableContainer");
+  if (pContainer) {
+    pContainer.addEventListener("scroll", () => {
+      if (displayedPitchersCount < currentPitchersList.length) {
+        if (pContainer.scrollTop + pContainer.clientHeight >= pContainer.scrollHeight - 280) {
+          appendMorePitchers();
+        }
+      }
+    }, { passive: true });
+  }
+
+  const bMoreBtn = document.getElementById("battersLoadMoreBtn");
+  if (bMoreBtn) {
+    bMoreBtn.addEventListener("click", () => appendMoreBatters());
+  }
+
+  const pMoreBtn = document.getElementById("pitchersLoadMoreBtn");
+  if (pMoreBtn) {
+    pMoreBtn.addEventListener("click", () => appendMorePitchers());
+  }
 }
 
 // ソートイベント設定
@@ -155,14 +280,15 @@ function getFilteredData(dataList, isBatter = true) {
   const pos = document.getElementById("posFilter").value;
   const qual = document.getElementById("qualFilter") ? document.getElementById("qualFilter").value : "all";
   const query = document.getElementById("searchQuery").value.trim().toLowerCase();
+  const queryNoSpace = query.replace(/[\s\u3000]+/g, "");
 
   return dataList.filter(item => {
-    if (year !== "all" && item.year.toString() !== year) return false;
+    if (year !== "all" && item._yearStr !== year) return false;
     if (league !== "all" && item.league !== league) return false;
     if (team !== "all" && item.team !== team) return false;
     if (isBatter && pos !== "all" && item.primary_pos !== pos) return false;
     if (qual === "qual" && !item.is_qual) return false;
-    if (query && !item.name.toLowerCase().includes(query)) return false;
+    if (query && !item._searchRaw.includes(query) && !item._searchNoSpace.includes(queryNoSpace)) return false;
     return true;
   });
 }
@@ -176,11 +302,38 @@ function renderCurrentTab() {
   } else if (currentTab === "scatterTab") {
     renderScatterChart();
   } else if (currentTab === "compareTab") {
+    if (!isCompareInitialized) {
+      initCompareSelects();
+      isCompareInitialized = true;
+    }
     updateCompareView();
   }
 }
 
-// 打者テーブル描画
+// 打者1行分のHTML生成
+function createBatterRowHtml(b) {
+  return `<tr>
+    <td>${b.year}</td>
+    <td>${b.team}</td>
+    <td class="player-name" data-url="${b.player_url || ''}" data-name="${b.name}" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small>${!b.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
+    <td><span class="pos-tag">${b.primary_pos}</span></td>
+    <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
+    <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
+    <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
+    <td>${b.ops.toFixed(3)}</td>
+    <td>${b.avg.toFixed(3)}</td>
+    <td>${b.hr}</td>
+    <td>${b.rbi}</td>
+    <td style="color:${b.wsb >= 0 ? '#38bdf8' : '#f87171'}">${b.wsb > 0 ? '+' : ''}${b.wsb.toFixed(2)}</td>
+    <td>${getRankBadge(b.meet_rank, b.meet)}</td>
+    <td>${getRankBadge(b.power_rank, b.power)}</td>
+    <td>${getRankBadge(b.speed_rank, b.speed)}</td>
+    <td>${getRankBadge(b.defense_rank, b.defense)}</td>
+    <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
+  </tr>`;
+}
+
+// 打者テーブル描画（チャンク描画）
 function renderBatters() {
   let list = getFilteredData(allBatters, true);
 
@@ -193,32 +346,67 @@ function renderBatters() {
     return sortOrder === "asc" ? va - vb : vb - va;
   });
 
-  document.getElementById("battersCount").textContent = `表示: ${list.length}名`;
+  currentBattersList = list;
+  displayedBattersCount = 0;
+
   const tbody = document.getElementById("battersBody");
-  tbody.innerHTML = list.map(b => `
-    <tr>
-      <td>${b.year}</td>
-      <td>${b.team}</td>
-      <td class="player-name" onclick="openPlayerModal('${b.player_url}', '${encodeURIComponent(b.name)}', true)" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small>${!b.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
-      <td><span class="pos-tag">${b.primary_pos}</span></td>
-      <td><strong>${b.ops_plus.toFixed(1)}</strong></td>
-      <td style="color:#38bdf8;">${(b.obp_plus || 100).toFixed(1)}</td>
-      <td style="color:#f472b6;">${(b.isop_plus || 100).toFixed(1)}</td>
-      <td>${b.ops.toFixed(3)}</td>
-      <td>${b.avg.toFixed(3)}</td>
-      <td>${b.hr}</td>
-      <td>${b.rbi}</td>
-      <td style="color:${b.wsb >= 0 ? '#38bdf8' : '#f87171'}">${b.wsb > 0 ? '+' : ''}${b.wsb.toFixed(2)}</td>
-      <td>${getRankBadge(b.meet_rank, b.meet)}</td>
-      <td>${getRankBadge(b.power_rank, b.power)}</td>
-      <td>${getRankBadge(b.speed_rank, b.speed)}</td>
-      <td>${getRankBadge(b.defense_rank, b.defense)}</td>
-      <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
-    </tr>
-  `).join("");
+  tbody.innerHTML = "";
+  const container = document.getElementById("battersTableContainer");
+  if (container) container.scrollTop = 0;
+
+  appendMoreBatters();
 }
 
-// 投手テーブル描画
+function appendMoreBatters() {
+  const total = currentBattersList.length;
+  const nextChunk = currentBattersList.slice(displayedBattersCount, displayedBattersCount + PAGE_SIZE);
+  if (nextChunk.length > 0) {
+    const tbody = document.getElementById("battersBody");
+    tbody.insertAdjacentHTML("beforeend", nextChunk.map(createBatterRowHtml).join(""));
+    displayedBattersCount += nextChunk.length;
+  }
+
+  const countEl = document.getElementById("battersCount");
+  const wrapEl = document.getElementById("battersLoadMoreWrap");
+  const btnEl = document.getElementById("battersLoadMoreBtn");
+
+  if (displayedBattersCount < total) {
+    countEl.textContent = `該当: ${total.toLocaleString()}名 (${displayedBattersCount.toLocaleString()}名表示中)`;
+    if (wrapEl && btnEl) {
+      const rem = total - displayedBattersCount;
+      wrapEl.style.display = "block";
+      btnEl.textContent = `さらに${Math.min(PAGE_SIZE, rem)}件を表示 (残り ${rem.toLocaleString()}名)`;
+    }
+  } else {
+    countEl.textContent = `表示: ${total.toLocaleString()}名`;
+    if (wrapEl) wrapEl.style.display = "none";
+  }
+}
+
+// 投手1行分のHTML生成
+function createPitcherRowHtml(p) {
+  return `<tr>
+    <td>${p.year}</td>
+    <td>${p.team}</td>
+    <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
+    <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
+    <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
+    <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
+    <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
+    <td>${p.era.toFixed(2)}</td>
+    <td>${p.fip.toFixed(2)}</td>
+    <td>${p.k_bb_pct.toFixed(1)}%</td>
+    <td>${p.w}</td>
+    <td>${p.l}</td>
+    <td>${p.ip.toFixed(1)}</td>
+    <td>${p.so}</td>
+    <td>${getRankBadge(p.control_rank, p.control)}</td>
+    <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
+    <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
+  </tr>`;
+}
+
+// 投手テーブル描画（チャンク描画）
 function renderPitchers() {
   let list = getFilteredData(allPitchers, false);
 
@@ -231,43 +419,69 @@ function renderPitchers() {
     return sortOrder === "asc" ? va - vb : vb - va;
   });
 
-  document.getElementById("pitchersCount").textContent = `表示: ${list.length}名`;
+  currentPitchersList = list;
+  displayedPitchersCount = 0;
+
   const tbody = document.getElementById("pitchersBody");
-  tbody.innerHTML = list.map(p => `
-    <tr>
-      <td>${p.year}</td>
-      <td>${p.team}</td>
-      <td class="player-name" onclick="openPlayerModal('${p.player_url}', '${encodeURIComponent(p.name)}', false)" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${!p.is_qual ? '<span class="tag-sub">準規定</span>' : ''}</td>
-      <td><strong style="color:${p.fip_minus <= 70 ? '#ef4444' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
-      <td style="color:#38bdf8;"><strong>${(p.k_pct_plus || 100).toFixed(1)}</strong></td>
-      <td style="color:${(p.bb_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.bb_pct_minus || 100).toFixed(1)}</td>
-      <td style="color:${(p.hr_pct_minus || 100) <= 70 ? '#4ade80' : '#cbd5e1'};">${(p.hr_pct_minus || 100).toFixed(1)}</td>
-      <td>${p.era.toFixed(2)}</td>
-      <td>${p.fip.toFixed(2)}</td>
-      <td>${p.k_bb_pct.toFixed(1)}%</td>
-      <td>${p.w}</td>
-      <td>${p.l}</td>
-      <td>${p.ip.toFixed(1)}</td>
-      <td>${p.so}</td>
-      <td>${getRankBadge(p.control_rank, p.control)}</td>
-      <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
-      <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
-    </tr>
-  `).join("");
+  tbody.innerHTML = "";
+  const container = document.getElementById("pitchersTableContainer");
+  if (container) container.scrollTop = 0;
+
+  appendMorePitchers();
 }
 
-// 散布図描画
+function appendMorePitchers() {
+  const total = currentPitchersList.length;
+  const nextChunk = currentPitchersList.slice(displayedPitchersCount, displayedPitchersCount + PAGE_SIZE);
+  if (nextChunk.length > 0) {
+    const tbody = document.getElementById("pitchersBody");
+    tbody.insertAdjacentHTML("beforeend", nextChunk.map(createPitcherRowHtml).join(""));
+    displayedPitchersCount += nextChunk.length;
+  }
+
+  const countEl = document.getElementById("pitchersCount");
+  const wrapEl = document.getElementById("pitchersLoadMoreWrap");
+  const btnEl = document.getElementById("pitchersLoadMoreBtn");
+
+  if (displayedPitchersCount < total) {
+    countEl.textContent = `該当: ${total.toLocaleString()}名 (${displayedPitchersCount.toLocaleString()}名表示中)`;
+    if (wrapEl && btnEl) {
+      const rem = total - displayedPitchersCount;
+      wrapEl.style.display = "block";
+      btnEl.textContent = `さらに${Math.min(PAGE_SIZE, rem)}件を表示 (残り ${rem.toLocaleString()}名)`;
+    }
+  } else {
+    countEl.textContent = `表示: ${total.toLocaleString()}名`;
+    if (wrapEl) wrapEl.style.display = "none";
+  }
+}
+
+// 散布図描画（最大800点サンプリング＆高速描画）
 function renderScatterChart() {
   const chartType = document.getElementById("chartTypeSelect").value;
   const ctx = document.getElementById("scatterCanvas").getContext("2d");
+  const MAX_SCATTER_POINTS = 800;
 
   let points = [];
   let xLabel = "";
   let yLabel = "";
   let chartTitle = "";
+  let totalMatched = 0;
+
+  const capList = (list, isBatter) => {
+    totalMatched = list.length;
+    if (list.length <= MAX_SCATTER_POINTS) return list;
+    const copy = list.slice();
+    if (isBatter) {
+      copy.sort((a, b) => b.ops_plus - a.ops_plus);
+    } else {
+      copy.sort((a, b) => a.fip_minus - b.fip_minus);
+    }
+    return copy.slice(0, MAX_SCATTER_POINTS);
+  };
 
   if (chartType === "batter_obp_isop") {
-    const list = getFilteredData(allBatters, true);
+    const list = capList(getFilteredData(allBatters, true), true);
     xLabel = "OBP+ (出塁率傑出度 / 100=平均)";
     yLabel = "ISO+ (純長打力傑出度 / 100=平均)";
     chartTitle = "野手: OBP+ (出塁力) × ISO+ (純長打力)";
@@ -278,7 +492,7 @@ function renderScatterChart() {
       detail: `出塁率.${b.obp.toFixed(3)} HR:${b.hr} OBP+:${(b.obp_plus||100).toFixed(1)} ISO+:${(b.isop_plus||100).toFixed(1)}`
     }));
   } else if (chartType === "batter_ops_wsb") {
-    const list = getFilteredData(allBatters, true);
+    const list = capList(getFilteredData(allBatters, true), true);
     xLabel = "wSB (走塁得点貢献)";
     yLabel = "OPS+ (打撃傑出度 / 100=平均)";
     chartTitle = "野手: OPS+ × wSB (攻撃力 & 走塁力)";
@@ -289,10 +503,10 @@ function renderScatterChart() {
       detail: `打率.${b.avg.toFixed(3)} HR:${b.hr} 盗塁:${b.sb} OPS+:${b.ops_plus}`
     }));
   } else if (chartType === "batter_meet_power") {
-    const list = getFilteredData(allBatters, true);
+    const list = capList(getFilteredData(allBatters, true), true);
     xLabel = "ミート能力 (1〜100)";
     yLabel = "パワー能力 (1〜100)";
-    chartTitle = "野手: ミート × パワー (パワプロ散布図)";
+    chartTitle = "野手: ミート × パワー (パワプロ打撃散布図)";
     points = list.map(b => ({
       x: b.meet,
       y: b.power,
@@ -300,7 +514,7 @@ function renderScatterChart() {
       detail: `ミート:${b.meet}(${b.meet_rank}) パワー:${b.power}(${b.power_rank}) HR:${b.hr}`
     }));
   } else if (chartType === "batter_def_field") {
-    const list = getFilteredData(allBatters, true);
+    const list = capList(getFilteredData(allBatters, true), true);
     xLabel = "守備力 (RRF 守備範囲 / 1〜100)";
     yLabel = "捕球 (エラー回避・守備率 / 1〜100)";
     chartTitle = "野手: 守備力 (守備範囲) × 捕球 (エラー回避)";
@@ -311,7 +525,7 @@ function renderScatterChart() {
       detail: `守備力:${b.defense}(${b.defense_rank}) 捕球:${b.fielding}(${b.fielding_rank}) RRF:${b.rrf}% 守備率:${b.fpct}`
     }));
   } else if (chartType === "pitcher_k_bb_era") {
-    const list = getFilteredData(allPitchers, false);
+    const list = capList(getFilteredData(allPitchers, false), false);
     xLabel = "K%+ (奪三振傑出度 / 100=平均・高いほど優秀)";
     yLabel = "BB%- (与四球抑止力 / 100=平均・低いほど優秀)";
     chartTitle = "投手: K%+ (奪三振力) × BB%- (制球力) 【時代補正】";
@@ -322,7 +536,7 @@ function renderScatterChart() {
       detail: `K%+:${(p.k_pct_plus||100).toFixed(1)} BB%-:${(p.bb_pct_minus||100).toFixed(1)} HR%-:${(p.hr_pct_minus||100).toFixed(1)} 防御率:${p.era}`
     }));
   } else if (chartType === "pitcher_fip_kbb") {
-    const list = getFilteredData(allPitchers, false);
+    const list = capList(getFilteredData(allPitchers, false), false);
     xLabel = "K-BB% (奪三振率 - 与四球率 / 支配力)";
     yLabel = "FIP- (時代補正FIP / 100=平均・低いほど優秀)";
     chartTitle = "投手: FIP- × K-BB% (最強支配力マトリクス)";
@@ -333,7 +547,7 @@ function renderScatterChart() {
       detail: `FIP-:${p.fip_minus} K-BB%:${p.k_bb_pct}% 防御率:${p.era} 奪三振:${p.so}`
     }));
   } else if (chartType === "pitcher_ctrl_stuff") {
-    const list = getFilteredData(allPitchers, false);
+    const list = capList(getFilteredData(allPitchers, false), false);
     xLabel = "コントロール能力 (1〜100)";
     yLabel = "球威/キレ能力 (1〜100)";
     chartTitle = "投手: コントロール × 球威 (パワプロ散布図)";
@@ -343,6 +557,12 @@ function renderScatterChart() {
       name: `[${p.year} ${p.team}] ${p.name}`,
       detail: `制球:${p.control}(${p.control_rank}) 球威:${p.stuff}(${p.stuff_rank}) K-BB:${p.k_bb}`
     }));
+  }
+
+  if (totalMatched > MAX_SCATTER_POINTS) {
+    chartTitle += ` (上位${MAX_SCATTER_POINTS}名を表示中 / 該当${totalMatched.toLocaleString()}名)`;
+  } else {
+    chartTitle += ` (${totalMatched.toLocaleString()}名)`;
   }
 
   if (scatterChart) {
@@ -357,15 +577,16 @@ function renderScatterChart() {
         data: points,
         backgroundColor: "rgba(56, 189, 248, 0.7)",
         borderColor: "#38bdf8",
-        pointRadius: 6,
-        pointHoverRadius: 9
+        pointRadius: points.length > 300 ? 4 : 6,
+        pointHoverRadius: 8
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: points.length > 250 ? false : { duration: 300 },
       plugins: {
-        legend: { labels: { color: "#f8fafc", font: { size: 14 } } },
+        legend: { labels: { color: "#f8fafc", font: { size: 13 } } },
         tooltip: {
           callbacks: {
             label: (ctx) => {
@@ -391,30 +612,39 @@ function renderScatterChart() {
   });
 }
 
-// 選手直接比較の選択肢を生成
-function populateCompareSelects() {
-  const selA = document.getElementById("compareSelectA");
-  const selB = document.getElementById("compareSelectB");
-  if (!selA || !selB) return;
+// 選手直接比較の選択肢を高速生成（検索連動・上限250件）
+function initCompareSelects() {
+  populateSingleCompareSelect("compareSelectA", "", 0);
+  populateSingleCompareSelect("compareSelectB", "", 1);
+}
 
-  selA.innerHTML = "";
-  selB.innerHTML = "";
+function populateSingleCompareSelect(selectId, queryStr, defaultIndex = 0) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
 
-  allBatters.forEach((b, i) => {
-    const text = `[野手] ${b.year} ${b.team} ${b.name}`;
-    const val = `b_${i}`;
-    selA.appendChild(new Option(text, val));
-    selB.appendChild(new Option(text, val));
-  });
+  const q = (queryStr || "").trim().toLowerCase();
+  const qNoSpace = q.replace(/[\s\u3000]+/g, "");
+  const MAX_OPTS = 250;
+  const opts = [];
 
-  allPitchers.forEach((p, i) => {
-    const text = `[投手] ${p.year} ${p.team} ${p.name}`;
-    const val = `p_${i}`;
-    selA.appendChild(new Option(text, val));
-    selB.appendChild(new Option(text, val));
-  });
+  for (let i = 0; i < allBatters.length && opts.length < MAX_OPTS; i++) {
+    const b = allBatters[i];
+    if (!q || b._searchRaw.includes(q) || b._searchNoSpace.includes(qNoSpace)) {
+      opts.push(`<option value="b_${i}">[野手] ${b.year} ${b.team} ${b.name} (OPS+ ${b.ops_plus})</option>`);
+    }
+  }
 
-  if (selB.options.length > 1) selB.selectedIndex = 1;
+  for (let i = 0; i < allPitchers.length && opts.length < MAX_OPTS; i++) {
+    const p = allPitchers[i];
+    if (!q || p._searchRaw.includes(q) || p._searchNoSpace.includes(qNoSpace)) {
+      opts.push(`<option value="p_${i}">[投手] ${p.year} ${p.team} ${p.name} (FIP- ${p.fip_minus})</option>`);
+    }
+  }
+
+  sel.innerHTML = opts.join("");
+  if (sel.options.length > defaultIndex) {
+    sel.selectedIndex = defaultIndex;
+  }
 }
 
 // 選手直接比較カード＆レーダーチャート更新
@@ -490,13 +720,14 @@ function renderCompareRadar(a, b) {
     dataA = [a.control, a.stuff, a.stamina, Math.min(100, Math.round(a.k_bb_pct * 3)), Math.min(100, Math.max(0, 200 - Math.round(a.fip_minus)))];
     dataB = [b.control, b.stuff, b.stamina, Math.min(100, Math.round(b.k_bb_pct * 3)), Math.min(100, Math.max(0, 200 - Math.round(b.fip_minus)))];
   } else {
-    // 異種間
-    labels = ["総合評価A", "総合評価B", "総合評価C"];
-    dataA = [50, 50, 50];
-    dataB = [50, 50, 50];
+    labels = ["能力1", "能力2", "能力3"];
+    dataA = [a.meet || a.control, a.power || a.stuff, a.speed || a.stamina];
+    dataB = [b.meet || b.control, b.power || b.stuff, b.speed || b.stamina];
   }
 
-  if (radarChart) radarChart.destroy();
+  if (radarChart) {
+    radarChart.destroy();
+  }
 
   radarChart = new Chart(ctx, {
     type: "radar",
@@ -506,16 +737,16 @@ function renderCompareRadar(a, b) {
         {
           label: `${a.year} ${a.name}`,
           data: dataA,
-          backgroundColor: "rgba(56, 189, 248, 0.3)",
+          backgroundColor: "rgba(56, 189, 248, 0.25)",
           borderColor: "#38bdf8",
           pointBackgroundColor: "#38bdf8"
         },
         {
           label: `${b.year} ${b.name}`,
           data: dataB,
-          backgroundColor: "rgba(239, 68, 68, 0.3)",
-          borderColor: "#ef4444",
-          pointBackgroundColor: "#ef4444"
+          backgroundColor: "rgba(244, 63, 94, 0.25)",
+          borderColor: "#f43f5e",
+          pointBackgroundColor: "#f43f5e"
         }
       ]
     },
@@ -539,7 +770,7 @@ function renderCompareRadar(a, b) {
   });
 }
 
-// CSVダウンロード
+// CSVダウンロード（内部用キャッシュキーを除外して出力）
 function setupCsvDownload() {
   const btn = document.getElementById("downloadCsvBtn");
   btn.addEventListener("click", () => {
@@ -547,7 +778,7 @@ function setupCsvDownload() {
     const data = isBatter ? getFilteredData(allBatters, true) : getFilteredData(allPitchers, false);
     if (!data.length) return;
 
-    const headers = Object.keys(data[0]);
+    const headers = Object.keys(data[0]).filter(k => !k.startsWith("_"));
     const csvRows = [headers.join(",")];
 
     data.forEach(row => {
@@ -622,17 +853,17 @@ function closePlayerModal() {
   if (modal) modal.classList.remove("active");
 }
 
-function openPlayerModal(playerUrl, encodedName, isBatter) {
-  const playerName = decodeURIComponent(encodedName);
-  const dataPool = isBatter ? allBatters : allPitchers;
+function openPlayerModal(playerUrl, playerName, isBatter) {
+  const urlMap = isBatter ? batterByUrlMap : pitcherByUrlMap;
+  const nameMap = isBatter ? batterByNameMap : pitcherByNameMap;
 
-  // URLまたは選手名で一致する全年度の記録を抽出
+  // O(1) インデックスから全年度の記録を抽出
   let records = [];
   if (playerUrl && playerUrl !== "null" && playerUrl !== "undefined" && playerUrl !== "") {
-    records = dataPool.filter(d => d.player_url === playerUrl);
+    records = (urlMap.get(playerUrl) || []).slice();
   }
   if (records.length === 0) {
-    records = dataPool.filter(d => d.name === playerName);
+    records = (nameMap.get(playerName) || []).slice();
   }
 
   // 年度順にソート (古い年度 -> 新しい年度)
@@ -674,7 +905,7 @@ function openPlayerModal(playerUrl, encodedName, isBatter) {
     } else {
       const bestFipMinus = Math.min(...records.map(r => r.fip_minus));
       const totalWins = records.reduce((sum, r) => sum + (r.w || 0), 0);
-      metaEl.textContent = `在籍球団: ${teamsStr} | 期間: ${minYear}〜${maxYear}年 (${records.length}シーズン) | 規定通算${totalWins}勝 | キャリア最高FIP-: ${bestFipMinus.toFixed(1)}`;
+      metaEl.textContent = `在籍球団: ${teamsStr} | 期間: ${minYear}〜${maxYear}年 (${records.length}シーズン) | 通算${totalWins}勝 | キャリア最高FIP-: ${bestFipMinus.toFixed(1)}`;
     }
   }
 
@@ -1010,4 +1241,3 @@ function renderModalCareerTable() {
     `).join("");
   }
 }
-

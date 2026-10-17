@@ -406,6 +406,22 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
   color: var(--accent);
 }
 
+.compare-search-input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.compare-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
 .compare-box select {
   width: 100%;
   margin-bottom: 1rem;
@@ -414,6 +430,13 @@ th:nth-child(1), th:nth-child(2), th:nth-child(3), th:nth-child(4) {
   border: 1px solid var(--border);
   border-radius: 6px;
   color: #fff;
+}
+
+.load-more-wrap {
+  text-align: center;
+  padding: 0.85rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-top: 1px solid var(--border);
 }
 
 .player-card {

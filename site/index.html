@@ -103,7 +103,7 @@
           <span class="legend-item"><span class="badge badge-g">G</span> 1-19</span>
         </div>
       </div>
-      <div class="table-container">
+      <div class="table-container" id="battersTableContainer">
         <table id="battersTable">
           <thead>
             <tr>
@@ -128,6 +128,9 @@
           </thead>
           <tbody id="battersBody"></tbody>
         </table>
+        <div id="battersLoadMoreWrap" class="load-more-wrap" style="display:none;">
+          <button id="battersLoadMoreBtn" class="btn-secondary">さらに200件を表示</button>
+        </div>
       </div>
     </section>
 
@@ -136,7 +139,7 @@
       <div class="table-meta">
         <span id="pitchersCount" class="count-badge">表示: 0名</span>
       </div>
-      <div class="table-container">
+      <div class="table-container" id="pitchersTableContainer">
         <table id="pitchersTable">
           <thead>
             <tr>
@@ -161,6 +164,9 @@
           </thead>
           <tbody id="pitchersBody"></tbody>
         </table>
+        <div id="pitchersLoadMoreWrap" class="load-more-wrap" style="display:none;">
+          <button id="pitchersLoadMoreBtn" class="btn-secondary">さらに200件を表示</button>
+        </div>
       </div>
     </section>
 
@@ -188,12 +194,14 @@
       <div class="compare-selector">
         <div class="compare-box">
           <h3>選手 A</h3>
+          <input type="text" id="compareSearchA" class="compare-search-input" placeholder="🔍 選手Aを検索 (例: 2024 岡本, 落合, 藤川)...">
           <select id="compareSelectA"></select>
           <div id="compareCardA" class="player-card"></div>
         </div>
         <div class="compare-vs">VS</div>
         <div class="compare-box">
           <h3>選手 B</h3>
+          <input type="text" id="compareSearchB" class="compare-search-input" placeholder="🔍 選手Bを検索 (例: 2022 村上, 王, 大勢)...">
           <select id="compareSelectB"></select>
           <div id="compareCardB" class="player-card"></div>
         </div>
