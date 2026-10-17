@@ -20,6 +20,31 @@ const pitcherByUrlMap = new Map();
 const pitcherByNameMap = new Map();
 let isCompareInitialized = false;
 
+// 球団・年度別メンバー表 (Yearbook) 管理変数
+let rosterYear = 2025;
+let rosterTeam = "阪神";
+let allAvailableYears = [];
+
+// 球団フランチャイズ系譜グループ（年度移動時の球団名自動引き継ぎ用）
+const FRANCHISE_GROUPS = [
+  ["巨人"],
+  ["阪神"],
+  ["中日", "名古屋"],
+  ["DeNA", "横浜", "大洋", "洋松"],
+  ["広島"],
+  ["ヤクルト", "アトムズ", "サンケイ", "国鉄"],
+  ["ソフトバンク", "ダイエー", "南海"],
+  ["日本ハム", "日拓", "東映", "東急"],
+  ["ロッテ", "東京", "大毎", "毎日"],
+  ["西武", "クラウン", "太平洋", "西鉄"],
+  ["オリックス", "阪急"],
+  ["楽天"],
+  ["近鉄"],
+  ["松竹"],
+  ["西日本"],
+  ["高橋", "トンボ"]
+];
+
 // モーダル管理変数
 let modalTrendChart = null;
 let currentModalPlayerRecords = [];
@@ -47,6 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupFilters();
   setupSorting();
   setupTableInteractions();
+  setupRosterControls();
   setupCsvDownload();
   setupPlayerModal();
   await loadData();
@@ -99,6 +125,9 @@ async function loadData() {
 
     populateYearFilter();
     populateTeamFilter();
+    if (allAvailableYears.length > 0) {
+      rosterYear = allAvailableYears[0];
+    }
     renderCurrentTab();
   } catch (err) {
     console.error("データの読み込みに失敗しました:", err);
@@ -113,6 +142,7 @@ function populateYearFilter() {
 
   const select = document.getElementById("yearFilter");
   const sortedYears = Array.from(years).sort((a, b) => b - a);
+  allAvailableYears = sortedYears;
   select.innerHTML = '<option value="all">全年代 (1950〜現在)</option>' +
     sortedYears.map(y => `<option value="${y}">${y}年</option>`).join("");
 }
@@ -151,6 +181,8 @@ function setupTabs() {
         posFilterGroup.style.display = "none";
         sortKey = "fip_minus";
         sortOrder = "asc";
+      } else if (currentTab === "teamRosterTab") {
+        posFilterGroup.style.display = "none";
       }
 
       renderCurrentTab();
@@ -163,7 +195,15 @@ function setupFilters() {
   ["yearFilter", "leagueFilter", "teamFilter", "posFilter", "qualFilter"].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.addEventListener("change", () => renderCurrentTab());
+      el.addEventListener("change", () => {
+        if (id === "yearFilter" && el.value !== "all") {
+          rosterYear = parseInt(el.value, 10);
+        }
+        if (id === "teamFilter" && el.value !== "all") {
+          rosterTeam = el.value;
+        }
+        renderCurrentTab();
+      });
     }
   });
 
@@ -222,6 +262,26 @@ function setupTableInteractions() {
     });
   }
 
+  const rbBody = document.getElementById("rosterBattersBody");
+  if (rbBody) {
+    rbBody.addEventListener("click", (e) => {
+      const cell = e.target.closest(".player-name");
+      if (cell) {
+        openPlayerModal(cell.dataset.url || "", cell.dataset.name || "", true);
+      }
+    });
+  }
+
+  const rpBody = document.getElementById("rosterPitchersBody");
+  if (rpBody) {
+    rpBody.addEventListener("click", (e) => {
+      const cell = e.target.closest(".player-name");
+      if (cell) {
+        openPlayerModal(cell.dataset.url || "", cell.dataset.name || "", false);
+      }
+    });
+  }
+
   const bContainer = document.getElementById("battersTableContainer");
   if (bContainer) {
     bContainer.addEventListener("scroll", () => {
@@ -252,6 +312,66 @@ function setupTableInteractions() {
   const pMoreBtn = document.getElementById("pitchersLoadMoreBtn");
   if (pMoreBtn) {
     pMoreBtn.addEventListener("click", () => appendMorePitchers());
+  }
+}
+
+// 球団・年度別メンバー表の操作イベント設定
+function setupRosterControls() {
+  const prevBtn = document.getElementById("rosterPrevYearBtn");
+  const nextBtn = document.getElementById("rosterNextYearBtn");
+  const bSort = document.getElementById("rosterBatterSort");
+  const pSort = document.getElementById("rosterPitcherSort");
+  const pillsWrap = document.getElementById("rosterTeamPills");
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+      if (allAvailableYears.length === 0) return;
+      const minYear = allAvailableYears[allAvailableYears.length - 1];
+      if (rosterYear > minYear) {
+        rosterYear--;
+        const yearFilterEl = document.getElementById("yearFilter");
+        if (yearFilterEl && yearFilterEl.value !== "all") {
+          yearFilterEl.value = rosterYear.toString();
+        }
+        renderTeamRoster();
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (allAvailableYears.length === 0) return;
+      const maxYear = allAvailableYears[0];
+      if (rosterYear < maxYear) {
+        rosterYear++;
+        const yearFilterEl = document.getElementById("yearFilter");
+        if (yearFilterEl && yearFilterEl.value !== "all") {
+          yearFilterEl.value = rosterYear.toString();
+        }
+        renderTeamRoster();
+      }
+    });
+  }
+
+  if (bSort) {
+    bSort.addEventListener("change", () => renderTeamRoster());
+  }
+  if (pSort) {
+    pSort.addEventListener("change", () => renderTeamRoster());
+  }
+
+  if (pillsWrap) {
+    pillsWrap.addEventListener("click", (e) => {
+      const btn = e.target.closest(".team-pill-btn");
+      if (btn && btn.dataset.team) {
+        rosterTeam = btn.dataset.team;
+        const teamFilterEl = document.getElementById("teamFilter");
+        if (teamFilterEl && teamFilterEl.value !== "all") {
+          teamFilterEl.value = rosterTeam;
+        }
+        renderTeamRoster();
+      }
+    });
   }
 }
 
@@ -299,6 +419,8 @@ function renderCurrentTab() {
     renderBatters();
   } else if (currentTab === "pitchersTab") {
     renderPitchers();
+  } else if (currentTab === "teamRosterTab") {
+    renderTeamRoster();
   } else if (currentTab === "scatterTab") {
     renderScatterChart();
   } else if (currentTab === "compareTab") {
@@ -307,6 +429,294 @@ function renderCurrentTab() {
       isCompareInitialized = true;
     }
     updateCompareView();
+  }
+}
+
+// 指定年度に存在する球団リストから、現在の球団（または同一フランチャイズ）を解決
+function resolveFranchiseTeam(currentTeam, teamsInYear) {
+  if (teamsInYear.includes(currentTeam)) return currentTeam;
+  for (const group of FRANCHISE_GROUPS) {
+    if (group.includes(currentTeam)) {
+      const matched = group.find(t => teamsInYear.includes(t));
+      if (matched) return matched;
+    }
+  }
+  return teamsInYear[0] || currentTeam;
+}
+
+// 🏟️ 球団・年度別メンバー表 (Yearbook) の描画
+function renderTeamRoster() {
+  // 当該年度の全打者・全投手を取得
+  const yearBatters = allBatters.filter(b => b.year === rosterYear);
+  const yearPitchers = allPitchers.filter(p => p.year === rosterYear);
+
+  // 当該年度に存在する球団一覧をリーグ順（セ・リーグ -> パ・リーグ）で抽出
+  const centralTeams = new Set();
+  const pacificTeams = new Set();
+  yearBatters.forEach(b => {
+    if (b.team && b.team !== "不明") {
+      if (b.league === "Central") centralTeams.add(b.team);
+      else pacificTeams.add(b.team);
+    }
+  });
+  yearPitchers.forEach(p => {
+    if (p.team && p.team !== "不明") {
+      if (p.league === "Central") centralTeams.add(p.team);
+      else pacificTeams.add(p.team);
+    }
+  });
+
+  const cList = Array.from(centralTeams);
+  const pList = Array.from(pacificTeams);
+  const allTeamsInYear = [...cList, ...pList];
+
+  // フランチャイズ引き継ぎ解決
+  rosterTeam = resolveFranchiseTeam(rosterTeam, allTeamsInYear);
+
+  // 前年・翌年ボタンの活性制御とタイトル更新
+  const minYear = allAvailableYears[allAvailableYears.length - 1] || 1950;
+  const maxYear = allAvailableYears[0] || 2025;
+  const prevBtn = document.getElementById("rosterPrevYearBtn");
+  const nextBtn = document.getElementById("rosterNextYearBtn");
+  if (prevBtn) prevBtn.disabled = (rosterYear <= minYear);
+  if (nextBtn) nextBtn.disabled = (rosterYear >= maxYear);
+
+  const teamLeague = centralTeams.has(rosterTeam) ? "セ・リーグ" : "パ・リーグ";
+  const titleEl = document.getElementById("rosterTitleHeading");
+  if (titleEl) {
+    titleEl.innerHTML = `${rosterYear}年 ${rosterTeam} <small style="font-size:0.85rem; color:#94a3b8; font-weight:normal;">(${teamLeague})</small>`;
+  }
+
+  // 球団クイック切替ピル描画
+  const pillsEl = document.getElementById("rosterTeamPills");
+  if (pillsEl) {
+    const makePills = (teams, label, badgeColor) => {
+      if (teams.length === 0) return "";
+      return `<span class="league-pill-label" style="color:${badgeColor};">${label}</span>` +
+        teams.map(t => `<button class="team-pill-btn ${t === rosterTeam ? 'active' : ''}" data-team="${t}">${t}</button>`).join("");
+    };
+    pillsEl.innerHTML =
+      makePills(cList, "セ:", "#38bdf8") +
+      `<span style="margin: 0 0.35rem; color: #334155;">|</span>` +
+      makePills(pList, "パ:", "#4ade80");
+  }
+
+  // 当該球団の野手・投手を取得
+  const teamBatters = yearBatters.filter(b => b.team === rosterTeam);
+  const teamPitchers = yearPitchers.filter(p => p.team === rosterTeam);
+
+  // チーム戦力サマリー計算
+  const totalHr = teamBatters.reduce((sum, b) => sum + (b.hr || 0), 0);
+  const totalSb = teamBatters.reduce((sum, b) => sum + (b.sb || 0), 0);
+  const totalPa = teamBatters.reduce((sum, b) => sum + (b.pa || 0), 0);
+  const weightedOpsPlus = totalPa > 0
+    ? teamBatters.reduce((sum, b) => sum + b.ops_plus * (b.pa || 0), 0) / totalPa
+    : 100;
+
+  const totalIp = teamPitchers.reduce((sum, p) => sum + (p.ip || 0), 0);
+  const weightedFipMinus = totalIp > 0
+    ? teamPitchers.reduce((sum, p) => sum + p.fip_minus * (p.ip || 0), 0) / totalIp
+    : 100;
+  const totalWins = teamPitchers.reduce((sum, p) => sum + (p.w || 0), 0);
+  const totalSaves = teamPitchers.reduce((sum, p) => sum + (p.sv || 0), 0);
+
+  const summaryEl = document.getElementById("rosterSummaryBadges");
+  if (summaryEl) {
+    summaryEl.innerHTML = `
+      <div class="roster-stat-pill">野手掲載: <strong>${teamBatters.length}名</strong> / 投手掲載: <strong>${teamPitchers.length}名</strong></div>
+      <div class="roster-stat-pill">打線加重OPS+: <strong style="color:${weightedOpsPlus >= 105 ? '#ef4444' : '#38bdf8'}">${weightedOpsPlus.toFixed(1)}</strong></div>
+      <div class="roster-stat-pill">主要HR計: <strong>${totalHr}本</strong> / 盗塁計: <strong>${totalSb}個</strong></div>
+      <div class="roster-stat-pill">投手加重FIP-: <strong style="color:${weightedFipMinus <= 95 ? '#4ade80' : '#f8fafc'}">${weightedFipMinus.toFixed(1)}</strong></div>
+      <div class="roster-stat-pill">主要勝星計: <strong>${totalWins}勝</strong> (S:${totalSaves})</div>
+    `;
+  }
+
+  // ==========================================
+  // 1. 野手陣の主力スタメン自動判定＆ソート
+  // ==========================================
+  const POS_SLOTS = { "捕": 1, "一": 1, "二": 1, "三": 1, "遊": 1, "外": 3, "指": 1 };
+  const POS_ORDER = { "捕": 1, "一": 2, "二": 3, "三": 4, "遊": 5, "外": 6, "指": 7 };
+  const usedSlots = { "捕": 0, "一": 0, "二": 0, "三": 0, "遊": 0, "外": 0, "指": 0 };
+
+  // 打席数順に走査して各ポジションの最多出場者を「主力スタメン」に割り当て
+  const battersByPa = teamBatters.slice().sort((a, b) => (b.pa || 0) - (a.pa || 0));
+  const starterSet = new Set();
+  battersByPa.forEach(b => {
+    const pos = b.primary_pos || "外";
+    const maxSlot = POS_SLOTS[pos] || 1;
+    if ((usedSlots[pos] || 0) < maxSlot && (b.pa || 0) >= 200) {
+      usedSlots[pos] = (usedSlots[pos] || 0) + 1;
+      starterSet.add(b);
+    }
+  });
+
+  // もし200打席未満でも各ポジション枠が空いていてチーム上位9名以内なら補充
+  battersByPa.forEach(b => {
+    if (!starterSet.has(b) && starterSet.size < 8) {
+      const pos = b.primary_pos || "外";
+      const maxSlot = POS_SLOTS[pos] || 1;
+      if ((usedSlots[pos] || 0) < maxSlot) {
+        usedSlots[pos] = (usedSlots[pos] || 0) + 1;
+        starterSet.add(b);
+      }
+    }
+  });
+
+  const bSortMode = document.getElementById("rosterBatterSort")
+    ? document.getElementById("rosterBatterSort").value
+    : "lineup";
+
+  const renderBatterRosterRow = (b) => {
+    const isStarter = starterSet.has(b);
+    const roleBadge = isStarter
+      ? `<span class="role-badge role-starter">主力</span>`
+      : `<span class="role-badge role-bench">控え</span>`;
+    const qualTag = b.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
+    return `<tr>
+      <td>${roleBadge}</td>
+      <td><span class="pos-tag">${b.primary_pos}</span></td>
+      <td class="player-name" data-url="${b.player_url || ''}" data-name="${b.name}" title="クリックしてキャリア推移を表示">${b.name} <small>(${b.age})</small>${qualTag}</td>
+      <td>${b.g || '-'}</td>
+      <td><strong>${b.pa || '-'}</strong></td>
+      <td><strong style="color:${b.ops_plus >= 140 ? '#ef4444' : b.ops_plus >= 115 ? '#38bdf8' : '#fff'}">${b.ops_plus.toFixed(1)}</strong></td>
+      <td>.${b.avg.toFixed(3).replace(/^0\./, '')}</td>
+      <td><strong>${b.hr}</strong></td>
+      <td>${b.rbi}</td>
+      <td>${b.sb}</td>
+      <td>.${b.obp.toFixed(3).replace(/^0\./, '')}</td>
+      <td>.${b.ops.toFixed(3).replace(/^0\./, '')}</td>
+      <td>${getRankBadge(b.meet_rank, b.meet)}</td>
+      <td>${getRankBadge(b.power_rank, b.power)}</td>
+      <td>${getRankBadge(b.speed_rank, b.speed)}</td>
+      <td>${getRankBadge(b.defense_rank, b.defense)}</td>
+      <td>${getRankBadge(b.fielding_rank, b.fielding)}</td>
+    </tr>`;
+  };
+
+  const rbBody = document.getElementById("rosterBattersBody");
+  if (rbBody) {
+    if (teamBatters.length === 0) {
+      rbBody.innerHTML = `<tr><td colspan="17" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する野手データがありません</td></tr>`;
+    } else if (bSortMode === "lineup") {
+      const starters = teamBatters.filter(b => starterSet.has(b)).sort((a, b) => {
+        const oa = POS_ORDER[a.primary_pos] || 9;
+        const ob = POS_ORDER[b.primary_pos] || 9;
+        if (oa !== ob) return oa - ob;
+        return (b.pa || 0) - (a.pa || 0);
+      });
+      const bench = teamBatters.filter(b => !starterSet.has(b)).sort((a, b) => (b.pa || 0) - (a.pa || 0));
+
+      let html = `<tr class="roster-divider-row"><td colspan="17">▼ 主力スタメン（守備位置順：捕・一・二・三・遊・外・指）</td></tr>`;
+      html += starters.map(renderBatterRosterRow).join("");
+      if (bench.length > 0) {
+        html += `<tr class="roster-divider-row"><td colspan="17">▼ 準主力・控え野手（打席数順 / 150打席以上）</td></tr>`;
+        html += bench.map(renderBatterRosterRow).join("");
+      }
+      rbBody.innerHTML = html;
+    } else {
+      const sorted = teamBatters.slice().sort((a, b) => (b[bSortMode] || 0) - (a[bSortMode] || 0));
+      rbBody.innerHTML = sorted.map(renderBatterRosterRow).join("");
+    }
+  }
+
+  // ==========================================
+  // 2. 投手陣の先発・リリーフ自動分類＆ソート
+  // ==========================================
+  const isStarterPitcher = (p) => {
+    const gs = p.gs || 0;
+    const g = p.g || 1;
+    // 1950年代など先発数が一部記録されていない場合へのフォールバックも考慮
+    if (gs >= 6 || (gs / g >= 0.35)) return true;
+    if (gs === 0 && p.is_qual && (p.sv || 0) < 5) return true;
+    return false;
+  };
+
+  const startersP = teamPitchers.filter(isStarterPitcher).sort((a, b) => b.ip - a.ip);
+  const relieversP = teamPitchers.filter(p => !isStarterPitcher(p)).sort((a, b) => {
+    const scoreA = (a.sv || 0) * 3 + (a.hld || 0) * 1.5 + (a.g || 0);
+    const scoreB = (b.sv || 0) * 3 + (b.hld || 0) * 1.5 + (b.g || 0);
+    return scoreB - scoreA;
+  });
+
+  // エース（先発最多投球回）と守護神（チーム最多セーブかつ5S以上）の特定
+  const acePitcher = startersP.length > 0 ? startersP[0] : null;
+  let closerPitcher = null;
+  let maxSv = 4;
+  relieversP.forEach(p => {
+    if ((p.sv || 0) > maxSv) {
+      maxSv = p.sv;
+      closerPitcher = p;
+    }
+  });
+
+  const getPitcherRoleBadge = (p) => {
+    if (isStarterPitcher(p)) {
+      if (p === acePitcher && p.ip >= 100) {
+        return `<span class="role-badge role-ace">先発柱</span>`;
+      } else if (p.is_qual || p.ip >= 90 || (p.gs || 0) >= 15) {
+        return `<span class="role-badge role-rotation">先発ローテ</span>`;
+      }
+      return `<span class="role-badge role-bench">先発/谷間</span>`;
+    } else {
+      if (p === closerPitcher || (p.sv || 0) >= 15) {
+        return `<span class="role-badge role-closer">守護神</span>`;
+      } else if ((p.g || 0) >= 40 || (p.hld || 0) >= 12 || (p.sv || 0) >= 5) {
+        return `<span class="role-badge role-relief">主力救援</span>`;
+      }
+      return `<span class="role-badge role-bench">救援</span>`;
+    }
+  };
+
+  const renderPitcherRosterRow = (p) => {
+    const qualTag = p.is_qual ? "" : `<span class="tag-sub">準規定</span>`;
+    return `<tr>
+      <td>${getPitcherRoleBadge(p)}</td>
+      <td class="player-name" data-url="${p.player_url || ''}" data-name="${p.name}" title="クリックしてキャリア推移を表示">${p.name} <small>(${p.age})</small>${qualTag}</td>
+      <td><strong>${p.g || '-'}</strong></td>
+      <td>${p.gs != null ? p.gs : '-'}</td>
+      <td>${p.cg != null ? p.cg : '-'}</td>
+      <td><strong>${p.w}</strong></td>
+      <td>${p.l}</td>
+      <td><strong style="color:${(p.sv || 0) >= 10 ? '#f472b6' : '#cbd5e1'}">${p.sv != null ? p.sv : 0}</strong></td>
+      <td><strong style="color:${(p.hld || 0) >= 15 ? '#4ade80' : '#cbd5e1'}">${p.hld != null ? p.hld : 0}</strong></td>
+      <td><strong>${p.ip.toFixed(1)}</strong></td>
+      <td>${p.so}</td>
+      <td>${p.era.toFixed(2)}</td>
+      <td><strong style="color:${p.fip_minus <= 75 ? '#ef4444' : p.fip_minus <= 90 ? '#38bdf8' : '#fff'}">${p.fip_minus.toFixed(1)}</strong></td>
+      <td style="color:#38bdf8;">${(p.k_pct_plus || 100).toFixed(1)}</td>
+      <td style="color:${(p.bb_pct_minus || 100) <= 80 ? '#4ade80' : '#cbd5e1'}">${(p.bb_pct_minus || 100).toFixed(1)}</td>
+      <td>${getRankBadge(p.control_rank, p.control)}</td>
+      <td>${getRankBadge(p.stuff_rank, p.stuff)}</td>
+      <td>${getRankBadge(p.stamina_rank, p.stamina)}</td>
+    </tr>`;
+  };
+
+  const pSortMode = document.getElementById("rosterPitcherSort")
+    ? document.getElementById("rosterPitcherSort").value
+    : "role";
+
+  const rpBody = document.getElementById("rosterPitchersBody");
+  if (rpBody) {
+    if (teamPitchers.length === 0) {
+      rpBody.innerHTML = `<tr><td colspan="18" style="text-align:center; padding:1.5rem; color:#94a3b8;">該当する投手データがありません</td></tr>`;
+    } else if (pSortMode === "role") {
+      let html = "";
+      if (startersP.length > 0) {
+        html += `<tr class="roster-divider-row"><td colspan="18">▼ 先発ローテーション・先発陣（投球回順）</td></tr>`;
+        html += startersP.map(renderPitcherRosterRow).join("");
+      }
+      if (relieversP.length > 0) {
+        html += `<tr class="roster-divider-row"><td colspan="18">▼ リリーフ・抑え陣（セーブ・ホールド・登板数順 / 30投球回以上）</td></tr>`;
+        html += relieversP.map(renderPitcherRosterRow).join("");
+      }
+      rpBody.innerHTML = html;
+    } else {
+      const sorted = teamPitchers.slice().sort((a, b) => {
+        if (pSortMode === "fip_minus") return a.fip_minus - b.fip_minus;
+        return (b[pSortMode] || 0) - (a[pSortMode] || 0);
+      });
+      rpBody.innerHTML = sorted.map(renderPitcherRosterRow).join("");
+    }
   }
 }
 

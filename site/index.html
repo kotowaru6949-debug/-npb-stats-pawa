@@ -27,6 +27,7 @@
     <nav class="tabs-nav">
       <button class="tab-btn active" data-tab="battersTab">🏏 野手一覧・査定</button>
       <button class="tab-btn" data-tab="pitchersTab">🎯 投手一覧・査定</button>
+      <button class="tab-btn" data-tab="teamRosterTab">🏟️ 球団・年度別メンバー表</button>
       <button class="tab-btn" data-tab="scatterTab">📊 世代比較・散布図</button>
       <button class="tab-btn" data-tab="compareTab">⚖️ 選手直接比較</button>
     </nav>
@@ -166,6 +167,104 @@
         </table>
         <div id="pitchersLoadMoreWrap" class="load-more-wrap" style="display:none;">
           <button id="pitchersLoadMoreBtn" class="btn-secondary">さらに200件を表示</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2.5: Team Roster / Yearbook View -->
+    <section id="teamRosterTab" class="tab-pane">
+      <div class="roster-header-card">
+        <div class="roster-nav-row">
+          <div class="roster-year-controls">
+            <button id="rosterPrevYearBtn" class="btn-outline roster-step-btn" title="前年の同チームへ">◀ 前年</button>
+            <h2 id="rosterTitleHeading" class="roster-title-heading">2024年 巨人</h2>
+            <button id="rosterNextYearBtn" class="btn-outline roster-step-btn" title="翌年の同チームへ">翌年 ▶</button>
+          </div>
+          <div id="rosterSummaryBadges" class="roster-summary-badges"></div>
+        </div>
+        <div id="rosterTeamPills" class="roster-team-pills"></div>
+      </div>
+
+      <div class="roster-section">
+        <div class="roster-section-header">
+          <h3>🏏 野手陣（主力スタメン ＆ 準主力・控え / 150打席以上）</h3>
+          <div class="roster-sort-group">
+            <span>並び順:</span>
+            <select id="rosterBatterSort">
+              <option value="lineup">主力スタメン(守備位置順) → 控え(打席順)</option>
+              <option value="pa">打席数順 (出場機会順)</option>
+              <option value="ops_plus">OPS+順 (打撃傑出度順)</option>
+              <option value="hr">本塁打順</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-container roster-table-container">
+          <table id="rosterBattersTable">
+            <thead>
+              <tr>
+                <th>区分</th>
+                <th>位置</th>
+                <th>選手名</th>
+                <th>試合</th>
+                <th>打席</th>
+                <th class="highlight-th">OPS+</th>
+                <th>打率</th>
+                <th>HR</th>
+                <th>打点</th>
+                <th>盗塁</th>
+                <th>出塁率</th>
+                <th>OPS</th>
+                <th>ミート</th>
+                <th>パワー</th>
+                <th>走力</th>
+                <th>守備</th>
+                <th>捕球</th>
+              </tr>
+            </thead>
+            <tbody id="rosterBattersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="roster-section" style="margin-top: 1.5rem;">
+        <div class="roster-section-header">
+          <h3>🎯 投手陣（先発ローテーション ＆ リリーフ陣 / 30投球回以上）</h3>
+          <div class="roster-sort-group">
+            <span>並び順:</span>
+            <select id="rosterPitcherSort">
+              <option value="role">先発ローテ(投球回順) → 救援陣(登板・S順)</option>
+              <option value="ip">投球回順</option>
+              <option value="g">登板数順</option>
+              <option value="fip_minus">FIP-順 (失点抑止力順)</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-container roster-table-container">
+          <table id="rosterPitchersTable">
+            <thead>
+              <tr>
+                <th>役割</th>
+                <th>選手名</th>
+                <th>登板</th>
+                <th>先発</th>
+                <th>完投</th>
+                <th>勝</th>
+                <th>敗</th>
+                <th>S</th>
+                <th>H</th>
+                <th>投球回</th>
+                <th>奪三振</th>
+                <th>防御率</th>
+                <th class="highlight-th">FIP-</th>
+                <th class="highlight-th">K%+</th>
+                <th class="highlight-th">BB%-</th>
+                <th>制球</th>
+                <th>球威</th>
+                <th>スタミナ</th>
+              </tr>
+            </thead>
+            <tbody id="rosterPitchersBody"></tbody>
+          </table>
         </div>
       </div>
     </section>
